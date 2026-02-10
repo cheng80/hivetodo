@@ -3,7 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_hive_sample/util/app_storage.dart';
+import 'package:tagdo/util/app_storage.dart';
 
 /// 테마 모드 상태를 관리하는 Notifier
 class ThemeNotifier extends Notifier<ThemeMode> {

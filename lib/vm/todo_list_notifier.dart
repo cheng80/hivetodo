@@ -2,8 +2,8 @@
 // Todo 목록 Riverpod Notifier
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_hive_sample/model/todo.dart';
-import 'package:flutter_hive_sample/vm/database_handler.dart';
+import 'package:tagdo/model/todo.dart';
+import 'package:tagdo/vm/database_handler.dart';
 
 /// TodoListNotifier - Riverpod AsyncNotifier 기반 ViewModel
 ///

@@ -4,7 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hive_sample/theme/app_colors.dart';
+import 'package:tagdo/theme/app_colors.dart';
+import 'package:tagdo/theme/config_ui.dart';
 
 class TodoDeleteSheet extends StatelessWidget {
   final VoidCallback onDeleteOne;
@@ -35,10 +36,14 @@ class TodoDeleteSheet extends StatelessWidget {
               onDeleteOne();
             },
             child: Container(
-              margin: const EdgeInsets.only(left: 20, right: 20, top: 12),
+              margin: const EdgeInsets.only(
+                left: ConfigUI.sheetPaddingH,
+                right: ConfigUI.sheetPaddingH,
+                top: 12,
+              ),
               alignment: Alignment.centerLeft,
               color: Colors.transparent,
-              height: 50,
+              height: ConfigUI.sheetButtonHeight,
               child: Text(
                 "이 항목 삭제",
                 style: TextStyle(
@@ -57,10 +62,10 @@ class TodoDeleteSheet extends StatelessWidget {
               onDeleteChecked();
             },
             child: Container(
-              margin: const EdgeInsets.only(left: 20, right: 20),
+              margin: const EdgeInsets.symmetric(horizontal: ConfigUI.sheetPaddingH),
               alignment: Alignment.centerLeft,
               color: Colors.transparent,
-              height: 50,
+              height: ConfigUI.sheetButtonHeight,
               child: Text(
                 "완료 항목 삭제",
                 style: TextStyle(
@@ -79,10 +84,10 @@ class TodoDeleteSheet extends StatelessWidget {
               onDeleteAll();
             },
             child: Container(
-              margin: const EdgeInsets.only(left: 20, right: 20),
+              margin: const EdgeInsets.symmetric(horizontal: ConfigUI.sheetPaddingH),
               alignment: Alignment.centerLeft,
               color: Colors.transparent,
-              height: 50,
+              height: ConfigUI.sheetButtonHeight,
               child: Text(
                 "전체 삭제",
                 style: TextStyle(

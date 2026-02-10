@@ -4,12 +4,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hive_sample/model/tag.dart';
-import 'package:flutter_hive_sample/model/todo.dart';
-import 'package:flutter_hive_sample/theme/app_colors.dart';
-import 'package:flutter_hive_sample/view/tag_settings.dart';
-import 'package:flutter_hive_sample/vm/edit_sheet_notifier.dart';
-import 'package:flutter_hive_sample/vm/tag_list_notifier.dart';
+import 'package:tagdo/model/tag.dart';
+import 'package:tagdo/model/todo.dart';
+import 'package:tagdo/theme/app_colors.dart';
+import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/view/tag_settings.dart';
+import 'package:tagdo/vm/edit_sheet_notifier.dart';
+import 'package:tagdo/vm/tag_list_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
@@ -89,7 +90,7 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
             /// ─────────────────────────────────────────────────
             Container(
               margin: const EdgeInsets.only(top: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: ConfigUI.sheetPaddingH),
               height: 60,
               color: Colors.transparent,
               child: Row(
@@ -159,8 +160,11 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
                   final isEmpty = ref.watch(isContentEmptyProvider);
                   return Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: p.textOnSheet, width: 2),
+                      borderRadius: ConfigUI.inputRadius,
+                      border: Border.all(
+                        color: p.textOnSheet,
+                        width: ConfigUI.focusBorderWidth,
+                      ),
                     ),
                     child: TextFormField(
                       controller: _controller,
@@ -193,7 +197,7 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
             /// [tag 라벨]
             /// ─────────────────────────────────────────────────
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
+              margin: const EdgeInsets.symmetric(horizontal: ConfigUI.sheetPaddingH),
               padding: const EdgeInsets.only(top: 16, bottom: 8),
               alignment: Alignment.centerLeft,
               child: Text(
@@ -235,16 +239,16 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
                               spacing: 4,
                               children: [
                                 Container(
-                                  width: 48,
-                                  height: 48,
+                                  width: ConfigUI.minTouchTarget,
+                                  height: ConfigUI.minTouchTarget,
                                   decoration: BoxDecoration(
                                     border: isSelected
                                         ? Border.all(
                                             color: p.iconOnSheet,
-                                            width: 2,
+                                            width: ConfigUI.focusBorderWidth,
                                           )
                                         : null,
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: ConfigUI.tagCellRadius,
                                     color: isSelected
                                         ? tag.color
                                         : tag.color.withValues(alpha: 0.6),
@@ -284,7 +288,10 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
             SafeArea(
               top: false,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: ConfigUI.sheetPaddingH,
+                  vertical: 8,
+                ),
                 child: GestureDetector(
                   onTap: () {
                     HapticFeedback.mediumImpact();
@@ -293,10 +300,10 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
                     );
                   },
                   child: Container(
-                    height: 44,
+                    height: ConfigUI.minTouchTarget,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: ConfigUI.buttonRadius,
                       border: Border.all(color: p.iconOnSheet, width: 1),
                     ),
                     child: Row(
@@ -355,7 +362,7 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
   Widget _buildFormField(String label, Widget child) {
     final p = context.palette;
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.symmetric(horizontal: ConfigUI.sheetPaddingH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

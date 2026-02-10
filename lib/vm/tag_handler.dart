@@ -3,7 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_hive_sample/model/tag.dart';
+import 'package:tagdo/model/tag.dart';
 /// 기본 태그 (이름, 색상)
 const List<(String, Color)> _defaults = [
   ('업무', Colors.red),

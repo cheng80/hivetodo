@@ -2,8 +2,8 @@
 // Tag 목록 Riverpod Notifier
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_hive_sample/model/tag.dart';
-import 'package:flutter_hive_sample/vm/tag_handler.dart';
+import 'package:tagdo/model/tag.dart';
+import 'package:tagdo/vm/tag_handler.dart';
 
 /// Tag 목록 비동기 관리
 class TagListNotifier extends AsyncNotifier<List<Tag>> {

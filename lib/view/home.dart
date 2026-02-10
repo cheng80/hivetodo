@@ -5,16 +5,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // HapticFeedback 사용을 위해 추가
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_hive_sample/model/todo.dart'; // Todo 데이터 모델
-import 'package:flutter_hive_sample/theme/app_colors.dart';
-import 'package:flutter_hive_sample/util/common_util.dart';
-import 'package:flutter_hive_sample/view/todo_item.dart';
-import 'package:flutter_hive_sample/view/sheets/todo_delete_sheet.dart';
-import 'package:flutter_hive_sample/view/sheets/todo_edit_sheet.dart';
-import 'package:flutter_hive_sample/view/app_drawer.dart';
-import 'package:flutter_hive_sample/view/home_widgets.dart';
-import 'package:flutter_hive_sample/vm/todo_list_notifier.dart';
-import 'package:flutter_hive_sample/vm/home_filter_notifier.dart';
+import 'package:tagdo/model/todo.dart'; // Todo 데이터 모델
+import 'package:tagdo/theme/app_colors.dart';
+import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/util/common_util.dart';
+import 'package:tagdo/view/todo_item.dart';
+import 'package:tagdo/view/sheets/todo_delete_sheet.dart';
+import 'package:tagdo/view/sheets/todo_edit_sheet.dart';
+import 'package:tagdo/view/app_drawer.dart';
+import 'package:tagdo/view/home_widgets.dart';
+import 'package:tagdo/vm/todo_list_notifier.dart';
+import 'package:tagdo/vm/home_filter_notifier.dart';
 
 /// TodoHome - Riverpod 기반 메인 화면
 ///
@@ -104,11 +105,11 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
             ref.read(todoListProvider.notifier).reorder(oldIndex, newIndex);
           },
           proxyDecorator: (child, index, animation) {
-            /// 드래그 중인 아이템에 그림자 효과
+            /// 드래그 중인 아이템에 그림자 효과 (ConfigUI)
             return AnimatedBuilder(
               animation: animation,
               builder: (context, child) => Material(
-                elevation: 4,
+                elevation: ConfigUI.elevationDragProxy,
                 color: Colors.transparent,
                 child: child,
               ),

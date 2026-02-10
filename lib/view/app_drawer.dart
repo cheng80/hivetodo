@@ -3,9 +3,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_hive_sample/theme/app_colors.dart';
-import 'package:flutter_hive_sample/view/tag_settings.dart';
-import 'package:flutter_hive_sample/vm/theme_notifier.dart';
+import 'package:tagdo/theme/app_colors.dart';
+import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/view/tag_settings.dart';
+import 'package:tagdo/vm/theme_notifier.dart';
 
 /// AppDrawer - 설정 및 부가 기능을 위한 사이드 메뉴
 class AppDrawer extends ConsumerWidget {
@@ -28,7 +29,9 @@ class AppDrawer extends ConsumerWidget {
           children: [
             /// 헤더 (설정 아이콘 + 타이틀)
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+              padding: const EdgeInsets.fromLTRB(
+                ConfigUI.screenPaddingH, 24, ConfigUI.screenPaddingH, 16,
+              ),
               child: Row(
                 spacing: 12,
                 children: [
@@ -48,7 +51,10 @@ class AppDrawer extends ConsumerWidget {
 
             /// 다크모드 스위치
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+              padding: const EdgeInsets.symmetric(
+                horizontal: ConfigUI.screenPaddingH,
+                vertical: 4,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

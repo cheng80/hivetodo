@@ -5,11 +5,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:flutter_hive_sample/model/tag.dart';
-import 'package:flutter_hive_sample/model/todo.dart';
-import 'package:flutter_hive_sample/util/common_util.dart';
-import 'package:flutter_hive_sample/view/home.dart';
-import 'package:flutter_hive_sample/vm/theme_notifier.dart';
+import 'package:tagdo/model/tag.dart';
+import 'package:tagdo/model/todo.dart';
+import 'package:tagdo/util/common_util.dart';
+import 'package:tagdo/view/home.dart';
+import 'package:tagdo/vm/theme_notifier.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 /// 앱의 메인 함수

@@ -48,9 +48,26 @@
   - `home.dart`의 위젯 빌드 함수들을 `home_widgets.dart`로 분리
   - `todo_item.dart` 별도 위젯 파일 분리
 
-- [ ] **Todo 항목 순서 변경 (드래그 앤 드롭)**
-  - `ReorderableListView`로 사용자 지정 순서 지원
-  - 순서 값을 모델에 추가 (새 @HiveField 필요)
+- [x] **Todo 항목 순서 변경 (드래그 앤 드롭)**
+  - `ReorderableListView` + `ReorderableDragStartListener` (드래그 핸들)
+  - `Todo.sortOrder` 필드 추가 (HiveField 6)
+  - `DatabaseHandler.reorder()` / `TodoListNotifier.reorder()`로 순서 영속화
+
+- [x] **삭제 UX 개선**
+  - 길게 누르기 시 해당 Todo 하이라이트 효과 (AnimatedContainer)
+  - 삭제 바텀시트에 "완료 항목 일괄 삭제" 버튼 추가
+  - 바텀시트 닫히면 하이라이트 자동 해제
+
+- [x] **편집 시트 내 태그 관리 바로가기**
+  - Todo 생성/수정 바텀시트 하단에 "태그 관리" 버튼 추가
+  - Navigator.push로 태그 설정 화면 이동 → 복귀 시 태그 목록 자동 갱신
+
+- [ ] **마감일 및 알림 기능 (단계적 구현)**
+  - 1단계: Todo 모델에 `dueDate` (DateTime?) 필드 추가 + TypeAdapter 수정
+  - 2단계: 편집 시트에 날짜/시간 선택 UI (DatePicker + TimePicker)
+  - 3단계: 홈 화면 Todo 아이템에 마감일 표시 (임박 시 강조)
+  - 4단계: `flutter_local_notifications` 연동 (알림 예약/취소/수정)
+  - 5단계: iOS 권한 요청 처리 (Info.plist, AppDelegate 설정)
 
 ## 버그 수정 / 개선
 
@@ -71,6 +88,14 @@
 
 - [x] **드롭다운 선택 시 글자 흔들림 수정**
   - `isExpanded: true` + `Expanded` + `Align` 적용
+
+- [x] **다크 모드 바텀시트/다이얼로그 가독성 개선**
+  - `sheetBackground`, `textOnSheet`, `iconOnSheet` 다크 테마 색상 조정
+  - 모든 바텀시트/AlertDialog에 `backgroundColor: p.sheetBackground` 적용
+
+- [x] **Hive TypeAdapter 파일 리네이밍**
+  - `.g.dart` → `_adapter.dart` (수동 관리 명확화)
+  - 코드 제너레이터 마이그레이션 가이드 문서 작성 (`docs/generator_migration.md`)
 
 ## 구조 개선
 

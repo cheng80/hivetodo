@@ -4,10 +4,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_hive_sample/model/tag.dart';
-import 'package:flutter_hive_sample/theme/app_colors.dart';
-import 'package:flutter_hive_sample/vm/home_filter_notifier.dart';
-import 'package:flutter_hive_sample/vm/tag_list_notifier.dart';
+import 'package:tagdo/model/tag.dart';
+import 'package:tagdo/theme/app_colors.dart';
+import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/vm/home_filter_notifier.dart';
+import 'package:tagdo/vm/tag_list_notifier.dart';
 
 /// ─────────────────────────────────────────────────
 /// 앱바 타이틀 (빈 영역 탭 → 검색 모드 전환)
@@ -34,7 +35,7 @@ class HomeTitleBar extends StatelessWidget {
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: onToggleSearch,
-            child: const SizedBox(height: 44),
+            child: SizedBox(height: ConfigUI.minTouchTarget),
           ),
         ),
       ],
@@ -69,13 +70,16 @@ class HomeSearchField extends ConsumerWidget {
         hintStyle: TextStyle(color: p.searchFieldHint),
         filled: true,
         fillColor: p.searchFieldBg,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: ConfigUI.inputPaddingH,
+          vertical: ConfigUI.inputPaddingV,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: ConfigUI.inputRadius,
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: ConfigUI.inputRadius,
           borderSide: BorderSide.none,
         ),
         suffixIcon: IconButton(
@@ -107,7 +111,9 @@ class HomeFilterRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      padding: const EdgeInsets.fromLTRB(
+        ConfigUI.screenPaddingH, 12, ConfigUI.screenPaddingH, 0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -207,10 +213,13 @@ class HomeFilterRow extends ConsumerWidget {
           ref.read(todoStatusProvider.notifier).setStatus(status);
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          padding: const EdgeInsets.symmetric(
+            horizontal: ConfigUI.chipPaddingH,
+            vertical: ConfigUI.chipPaddingV,
+          ),
           decoration: BoxDecoration(
             color: selected ? p.chipSelectedBg : p.chipUnselectedBg,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: ConfigUI.chipRadius,
           ),
           child: Text(
             label,

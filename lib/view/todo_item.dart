@@ -5,13 +5,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_hive_sample/model/tag.dart';
-import 'package:flutter_hive_sample/model/todo.dart';
-import 'package:flutter_hive_sample/theme/app_colors.dart';
-import 'package:flutter_hive_sample/vm/todo_list_notifier.dart';
-import 'package:flutter_hive_sample/vm/tag_list_notifier.dart';
-import 'package:flutter_hive_sample/vm/tag_handler.dart';
-import 'package:flutter_hive_sample/vm/home_filter_notifier.dart';
+import 'package:tagdo/model/tag.dart';
+import 'package:tagdo/model/todo.dart';
+import 'package:tagdo/theme/app_colors.dart';
+import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/vm/todo_list_notifier.dart';
+import 'package:tagdo/vm/tag_list_notifier.dart';
+import 'package:tagdo/vm/tag_handler.dart';
+import 'package:tagdo/vm/home_filter_notifier.dart';
 
 class TodoItem extends ConsumerWidget {
   final Todo todo;
@@ -50,18 +51,35 @@ class TodoItem extends ConsumerWidget {
         onLongPress();
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-        margin: const EdgeInsets.only(left: 20, right: 8, top: 12, bottom: 22),
+        duration: ConfigUI.durationMedium,
+        curve: ConfigUI.curveDefault,
+        margin: const EdgeInsets.only(
+          left: ConfigUI.listItemMarginLeft,
+          right: ConfigUI.listItemMarginRight,
+          top: ConfigUI.listItemMarginTop,
+          bottom: ConfigUI.listItemMarginBottom,
+        ),
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
         decoration: BoxDecoration(
           color: isHighlighted
               ? p.textPrimary.withValues(alpha: 0.08)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: ConfigUI.cardRadius,
           border: isHighlighted
-              ? Border.all(color: p.textPrimary.withValues(alpha: 0.2), width: 1.5)
+              ? Border.all(
+                  color: p.textPrimary.withValues(alpha: 0.2),
+                  width: ConfigUI.focusBorderWidth,
+                )
               : null,
+          boxShadow: isHighlighted
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,

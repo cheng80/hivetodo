@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_hive_sample/model/tag.dart';
-import 'package:flutter_hive_sample/model/todo_color.dart';
-import 'package:flutter_hive_sample/theme/app_colors.dart';
-import 'package:flutter_hive_sample/vm/tag_list_notifier.dart';
+import 'package:tagdo/model/tag.dart';
+import 'package:tagdo/model/todo_color.dart';
+import 'package:tagdo/theme/app_colors.dart';
+import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/vm/tag_list_notifier.dart';
 
 /// 태그 설정 화면
 class TagSettings extends ConsumerWidget {
@@ -57,8 +58,8 @@ class TagSettings extends ConsumerWidget {
             separatorBuilder: (_, _) => Divider(
               color: p.divider,
               height: 1,
-              indent: 20,
-              endIndent: 20,
+              indent: ConfigUI.screenPaddingH,
+              endIndent: ConfigUI.screenPaddingH,
             ),
             itemBuilder: (context, index) {
               final tag = tags[index];
@@ -138,13 +139,16 @@ class _TagTile extends StatelessWidget {
     final p = context.palette;
 
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: ConfigUI.screenPaddingH,
+        vertical: 4,
+      ),
       leading: Container(
         width: 32,
         height: 32,
         decoration: BoxDecoration(
           color: tag.color,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: ConfigUI.tagCellRadius,
         ),
       ),
       title: Text(
@@ -213,8 +217,8 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
 
     return Padding(
       padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
+        left: ConfigUI.sheetPaddingH,
+        right: ConfigUI.sheetPaddingH,
         top: 24,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
@@ -244,12 +248,15 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
               labelStyle: TextStyle(color: p.iconOnSheet),
               counterStyle: TextStyle(color: p.iconOnSheet),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: ConfigUI.inputRadius,
                 borderSide: BorderSide(color: p.iconOnSheet),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: p.textOnSheet, width: 2),
+                borderRadius: ConfigUI.inputRadius,
+                borderSide: BorderSide(
+                  color: p.textOnSheet,
+                  width: ConfigUI.focusBorderWidth,
+                ),
               ),
             ),
           ),
@@ -271,12 +278,15 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
             children: [
               /// 선택된 색상 미리보기
               Container(
-                width: 48,
-                height: 48,
+                width: ConfigUI.minTouchTarget,
+                height: ConfigUI.minTouchTarget,
                 decoration: BoxDecoration(
                   color: _selectedColor,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: p.iconOnSheet, width: 2),
+                  borderRadius: ConfigUI.buttonRadius,
+                  border: Border.all(
+                    color: p.iconOnSheet,
+                    width: ConfigUI.focusBorderWidth,
+                  ),
                 ),
               ),
 
@@ -288,7 +298,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: p.iconOnSheet),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: ConfigUI.inputRadius,
                   ),
                 ),
               ),
@@ -301,7 +311,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: p.iconOnSheet),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: ConfigUI.inputRadius,
                   ),
                 ),
               ),
@@ -318,8 +328,9 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
                 backgroundColor: p.textOnSheet,
                 foregroundColor: p.sheetBackground,
                 padding: const EdgeInsets.symmetric(vertical: 14),
+                minimumSize: const Size(0, ConfigUI.minTouchTarget),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: ConfigUI.inputRadius,
                 ),
               ),
               child: Text(
