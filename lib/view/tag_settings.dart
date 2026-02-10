@@ -227,14 +227,16 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
           ),
           const SizedBox(height: 20),
 
-          /// 이름 입력
+          /// 이름 입력 (최대 10글자)
           TextField(
             controller: _nameController,
+            maxLength: 10,
             style: TextStyle(color: p.textOnSheet, fontSize: 16),
             cursorColor: p.textOnSheet,
             decoration: InputDecoration(
               labelText: '태그 이름',
               labelStyle: TextStyle(color: p.iconOnSheet),
+              counterStyle: TextStyle(color: p.iconOnSheet),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(color: p.iconOnSheet),

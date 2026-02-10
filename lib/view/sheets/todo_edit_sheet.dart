@@ -189,20 +189,37 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
             ),
 
             /// ─────────────────────────────────────────────────
-            /// [tag 선택] - 색상 팔레트 + 태그 이름
+            /// [tag 라벨]
             /// ─────────────────────────────────────────────────
-            _buildFormField(
-              "tag",
-              Builder(
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.only(top: 16, bottom: 8),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "tag",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: p.iconOnSheet,
+                ),
+              ),
+            ),
+
+            /// ─────────────────────────────────────────────────
+            /// [tag 선택] - 세로 스크롤 Wrap (태그 수·이름 길이 대응)
+            /// ─────────────────────────────────────────────────
+            Expanded(
+              child: Builder(
                 builder: (context) {
                   final selectedId = ref.watch(editTagProvider);
                   final tags = ref.watch(tagListProvider).value ?? <Tag>[];
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                  /// 화면 너비에서 패딩 제외 후 5등분 → 아이템 고정 너비
+                  final itemWidth =
+                      (MediaQuery.of(context).size.width - 48 - 12 * 4) / 5;
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Wrap(
-                      spacing: 8,
-                      runSpacing: 10,
+                      spacing: 12,
+                      runSpacing: 16,
                       children: tags.map((tag) {
                         final isSelected = selectedId == tag.id;
                         return GestureDetector(
@@ -210,16 +227,13 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
                             HapticFeedback.mediumImpact();
                             ref.read(editTagProvider.notifier).setTag(tag.id);
                           },
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 4,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: p.sheetBackground,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Container(
+                          child: SizedBox(
+                            width: itemWidth,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 4,
+                              children: [
+                                Container(
                                   width: 48,
                                   height: 48,
                                   decoration: BoxDecoration(
@@ -242,15 +256,18 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
                                     ),
                                   ),
                                 ),
-                              ),
-                              Text(
-                                tag.name,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: p.iconOnSheet,
+                                Text(
+                                  tag.name,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: p.textOnSheet,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       }).toList(),
