@@ -61,9 +61,10 @@ class TodoItem extends ConsumerWidget {
         ),
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
         decoration: BoxDecoration(
+          /// 1번 Soft UI: 카드 배경 + 부드러운 그림자로 "떠 있는" 느낌
           color: isHighlighted
               ? p.textPrimary.withValues(alpha: 0.08)
-              : Colors.transparent,
+              : p.cardBackground,
           borderRadius: ConfigUI.cardRadius,
           border: isHighlighted
               ? Border.all(
@@ -75,113 +76,130 @@ class TodoItem extends ConsumerWidget {
               ? null
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
                 ],
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// [체크박스] - 완료 상태 토글
-            GestureDetector(
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                todoNotifier.toggleCheck(todo);
-              },
-              child: Icon(
-                todo.isCheck ? Icons.check_box : Icons.check_box_outline_blank,
-                color: p.textSecondary,
-                size: 32,
-              ),
-            ),
-
-            /// [색상 태그]
-            Container(
-              margin: const EdgeInsets.only(top: 4, left: 4),
-              width: 25,
-              height: 25,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25),
-                color: TagHandler.colorOf(tags, todo.tag),
-              ),
-            ),
-
-            /// [텍스트 영역]
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.only(left: 8, top: 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 4,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              /// 왼쪽: 체크박스 + 태그 + 텍스트 (세로 시작 정렬)
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    /// 할 일 내용
-                    Text(
-                      todo.content.isEmpty ? "내용 없음" : todo.content,
-                      style: todo.content.isEmpty
-                          ? TextStyle(
+                    /// 체크박스 + 태그 색상원: 세로 중앙 정렬
+                    Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              todoNotifier.toggleCheck(todo);
+                            },
+                            child: Icon(
+                              todo.isCheck
+                                  ? Icons.check_box
+                                  : Icons.check_box_outline_blank,
                               color: p.textSecondary,
-                              fontSize: 16,
-                            )
-                          : TextStyle(
-                              color: p.textPrimary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              size: 32,
                             ),
-                    ),
-
-                    /// 태그 이름
-                    Text(
-                      TagHandler.nameOf(tags, todo.tag),
-                      style: TextStyle(
-                        color: p.textMeta,
-                        fontSize: 12,
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(left: 4),
+                            width: 25,
+                            height: 25,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              color: TagHandler.colorOf(tags, todo.tag),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
-                    /// 날짜 + 수정 여부 (스타일 통일)
-                    RichText(
-                      text: TextSpan(
-                        text: todo.updatedAt
-                            .toString()
-                            .substring(0, 19)
-                            .replaceAll("-", ". "),
-                        style: TextStyle(
-                          color: p.textMeta,
-                          fontSize: 12,
-                        ),
-                        children: [
-                          if (todo.createdAt != todo.updatedAt) ...[
-                            TextSpan(
-                              text: "  (수정됨)",
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 8),
+                        alignment: Alignment.topLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 4,
+                          children: [
+                            Text(
+                              todo.content.isEmpty
+                                  ? "내용 없음"
+                                  : todo.content,
+                              style: todo.content.isEmpty
+                                  ? TextStyle(
+                                      color: p.textSecondary,
+                                      fontSize: 16,
+                                    )
+                                  : TextStyle(
+                                      color: p.textPrimary,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                            ),
+                            Text(
+                              TagHandler.nameOf(tags, todo.tag),
                               style: TextStyle(
-                                fontSize: 12,
                                 color: p.textMeta,
+                                fontSize: 12,
+                              ),
+                            ),
+                            RichText(
+                              text: TextSpan(
+                                text: todo.updatedAt
+                                    .toString()
+                                    .substring(0, 19)
+                                    .replaceAll("-", ". "),
+                                style: TextStyle(
+                                  color: p.textMeta,
+                                  fontSize: 12,
+                                ),
+                                children: [
+                                  if (todo.createdAt != todo.updatedAt) ...[
+                                    TextSpan(
+                                      text: "  (수정됨)",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: p.textMeta,
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
 
-            /// [드래그 핸들] - 이 영역만 드래그로 순서 변경 가능
+            /// [드래그 핸들] - 우측 영역 전체 높이, 아이콘 세로 중앙
             ReorderableDragStartListener(
               index: index,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Icon(
-                  Icons.drag_handle,
-                  color: p.textSecondary,
-                  size: 24,
+              child: SizedBox(
+                width: 56,
+                child: Center(
+                  child: Icon(
+                    Icons.drag_handle,
+                    color: p.textSecondary,
+                    size: 24,
+                  ),
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

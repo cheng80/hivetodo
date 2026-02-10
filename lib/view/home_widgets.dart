@@ -220,6 +220,14 @@ class HomeFilterRow extends ConsumerWidget {
           decoration: BoxDecoration(
             color: selected ? p.chipSelectedBg : p.chipUnselectedBg,
             borderRadius: ConfigUI.chipRadius,
+            /// 3번 Soft UI: 칩에 살짝 입체감
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 2,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
           child: Text(
             label,

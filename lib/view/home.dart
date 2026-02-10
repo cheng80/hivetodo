@@ -244,6 +244,11 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
     final result = await showModalBottomSheet<Todo>(
       context: context,
       backgroundColor: p.sheetBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(ConfigUI.radiusSheet),
+        ),
+      ),
       builder: (context) => TodoEditSheet(update: todo),
       isScrollControlled: true,
     );
@@ -274,6 +279,11 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
     showModalBottomSheet(
       context: context,
       backgroundColor: p.sheetBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(ConfigUI.radiusSheet),
+        ),
+      ),
       builder: (context) => TodoDeleteSheet(
         onDeleteOne: () {
           todoNotifier.deleteTodo(todo.no);

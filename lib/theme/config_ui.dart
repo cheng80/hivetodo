@@ -58,8 +58,8 @@ class ConfigUI {
   /// 리스트 아이템 좌측 여백 (홈 리스트)
   static const double listItemMarginLeft = 20.0;
   static const double listItemMarginRight = 8.0;
-  static const double listItemMarginTop = 12.0;
-  static const double listItemMarginBottom = 22.0;
+  static const double listItemMarginTop = 6.0;
+  static const double listItemMarginBottom = 10.0;
   /// 시트/다이얼로그 내부 좌우
   static const double sheetPaddingH = 20.0;
   /// 시트 내 버튼 행 높이 (minTouchTarget 이상)

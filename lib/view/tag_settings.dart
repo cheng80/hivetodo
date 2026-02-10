@@ -86,6 +86,11 @@ class TagSettings extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: p.sheetBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(ConfigUI.radiusSheet),
+        ),
+      ),
       builder: (_) => _TagEditorSheet(tag: tag),
     );
   }

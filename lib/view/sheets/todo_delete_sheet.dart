@@ -25,81 +25,89 @@ class TodoDeleteSheet extends StatelessWidget {
 
     return SizedBox(
       width: MediaQuery.of(context).size.width,
-      height: 162 + MediaQuery.of(context).padding.bottom,
+      height: 178 + MediaQuery.of(context).padding.bottom,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// [이 항목 삭제] - 해당 Todo만 삭제
-          GestureDetector(
+          _buildSheetButton(
+            context: context,
+            label: "이 항목 삭제",
+            textColor: p.textOnSheet,
+            margin: const EdgeInsets.only(
+              left: ConfigUI.sheetPaddingH,
+              right: ConfigUI.sheetPaddingH,
+              top: 12,
+            ),
             onTap: () {
               HapticFeedback.mediumImpact();
               onDeleteOne();
             },
-            child: Container(
-              margin: const EdgeInsets.only(
-                left: ConfigUI.sheetPaddingH,
-                right: ConfigUI.sheetPaddingH,
-                top: 12,
-              ),
-              alignment: Alignment.centerLeft,
-              color: Colors.transparent,
-              height: ConfigUI.sheetButtonHeight,
-              child: Text(
-                "이 항목 삭제",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: p.textOnSheet,
-                  fontSize: 16,
-                ),
-              ),
-            ),
           ),
 
           /// [완료 항목 삭제] - 완료된 Todo만 일괄 삭제
-          GestureDetector(
+          _buildSheetButton(
+            context: context,
+            label: "완료 항목 삭제",
+            textColor: p.textOnSheet,
+            margin: const EdgeInsets.symmetric(
+              horizontal: ConfigUI.sheetPaddingH,
+              vertical: 4,
+            ),
             onTap: () {
               HapticFeedback.mediumImpact();
               onDeleteChecked();
             },
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: ConfigUI.sheetPaddingH),
-              alignment: Alignment.centerLeft,
-              color: Colors.transparent,
-              height: ConfigUI.sheetButtonHeight,
-              child: Text(
-                "완료 항목 삭제",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: p.textOnSheet,
-                  fontSize: 16,
-                ),
-              ),
-            ),
           ),
 
           /// [전체 삭제] - 모든 Todo 삭제 (빨간색 경고)
-          GestureDetector(
+          _buildSheetButton(
+            context: context,
+            label: "전체 삭제",
+            textColor: p.accent,
+            margin: const EdgeInsets.symmetric(
+              horizontal: ConfigUI.sheetPaddingH,
+              vertical: 4,
+            ),
             onTap: () {
               HapticFeedback.mediumImpact();
               onDeleteAll();
             },
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: ConfigUI.sheetPaddingH),
-              alignment: Alignment.centerLeft,
-              color: Colors.transparent,
-              height: ConfigUI.sheetButtonHeight,
-              child: Text(
-                "전체 삭제",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: p.accent,
-                  fontSize: 16,
-                ),
-              ),
-            ),
           ),
         ],
       ),
     );
   }
+}
+
+/// 2번 Soft UI: 시트 버튼 - 둥근 모서리 + 연한 배경으로 터치 영역 표시
+Widget _buildSheetButton({
+  required BuildContext context,
+  required String label,
+  required Color textColor,
+  required EdgeInsets margin,
+  required VoidCallback onTap,
+}) {
+  final p = context.palette;
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      margin: margin,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      height: ConfigUI.sheetButtonHeight,
+      alignment: Alignment.centerLeft,
+      decoration: BoxDecoration(
+        color: p.textOnSheet.withValues(alpha: 0.08),
+        borderRadius: ConfigUI.buttonRadius,
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: textColor,
+          fontSize: 16,
+        ),
+      ),
+    ),
+  );
 }
