@@ -76,6 +76,26 @@
     - `requestPermission`, `DarwinInitializationSettings` (presentBanner, presentList 등)
   - Drawer "알람 상태 확인" 메뉴: Hive Box 마감일 Todo 개수 + 등록된 알람 개수 표시
 
+- [x] **마감일 필터 (알람 아이콘 토글)**
+  - 홈 필터: [전체][미완료][완료] 왼쪽 / [🔔] 오른쪽
+  - 알람 아이콘 토글: 마감일 있는 것만 ↔ 전체
+
+- [x] **다국어 (easy_localization)**
+  - `assets/translations/`: ko, en, ja, zh-CN, zh-TW
+  - Drawer에 언어 선택
+
+- [x] **앱 아이콘 & 스플래시**
+  - `assets/icon.png`, `assets/splash.png` (TagDo 텍스트 포함)
+  - `flutter_launcher_icons`, `flutter_native_splash` 설정
+  - `FlutterNativeSplash.preserve()` / `remove()` 패턴 적용
+
+- [ ] **스토어 평점/리뷰 팝업**
+  - 패키지: `in_app_review: ^2.0.11`
+  - `requestReview()`: 앱 내 네이티브 인앱 리뷰 (플랫폼 횟수 제한 있음)
+  - `openStoreListing()`: 스토어 리뷰 화면으로 이동 (횟수 제한 없음)
+  - 권장: `requestReview()`는 할 일 완료 후 등 적절한 시점에 호출, `openStoreListing()`는 Drawer/설정의 "평점 남기기" 버튼에 사용
+  - iOS: `openStoreListing(appStoreId: '앱스토어ID')` 필요
+
 ## 버그 수정 / 개선
 
 - [x] **DateTime.now() 중복 호출 버그 수정**
