@@ -25,9 +25,9 @@ Clean flat app icon. Single blue checkmark in a soft white rounded square. Tiny 
 
 > **중요**: flutter_native_splash는 이미지 + 배경색만 지원합니다. 텍스트는 **이미지에 포함**해야 합니다. 스플래시에 "TagDo" 앱명이 보이려면 아래처럼 텍스트를 포함한 이미지를 생성하세요.
 
-### 프롬프트 1 (라이트 + 텍스트)
+### 프롬프트 1 (라이트 + 텍스트) ← 흰 배경 권장
 ```
-App splash screen for a todo app named "TagDo". Minimal design. Center: blue checkmark icon with "TagDo" text below it. Light gray (#F5F5F5) background. Small yellow accent near the icon. Clean typography, sans-serif font. Portrait 9:19.5. Everything on one image - icon and text together.
+App splash screen for a todo app named "TagDo". Minimal design. Center: blue checkmark icon with "TagDo" text below it. Pure white (#FFFFFF) or light gray (#F5F5F5) background. Small yellow accent near the icon. Clean typography, sans-serif font. Portrait 9:19.5. Everything on one image - icon and text together. IMPORTANT: background must be white or very light, NOT black.
 ```
 
 ### 프롬프트 2 (다크 + 텍스트)

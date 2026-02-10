@@ -3,6 +3,7 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -28,7 +29,10 @@ Future<void> _initDateFormats() async {
 
 /// 앱의 메인 함수
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // 네이티브 스플래시 유지
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   await EasyLocalization.ensureInitialized();
 
   /// intl DateFormat locale 초기화 (날짜 포맷용)
@@ -52,6 +56,9 @@ void main() async {
   final notificationService = NotificationService();
   await notificationService.initialize();
   await notificationService.requestPermission();
+
+  /// 네이티브 스플래시 제거 (초기화 완료)
+  FlutterNativeSplash.remove();
 
   /// [Step 5] EasyLocalization + ProviderScope + MyApp
   runApp(
