@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hive_sample/theme/app_colors.dart';
 
 class TodoDeleteSheet extends StatelessWidget {
   final VoidCallback onDeleteOne;
@@ -17,6 +18,8 @@ class TodoDeleteSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final p = context.palette;
+
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: 112 + MediaQuery.of(context).padding.bottom,
@@ -34,11 +37,11 @@ class TodoDeleteSheet extends StatelessWidget {
               alignment: Alignment.centerLeft,
               color: Colors.transparent,
               height: 50,
-              child: const Text(
+              child: Text(
                 "이 항목 삭제",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: p.textOnSheet,
                   fontSize: 16,
                 ),
               ),
@@ -56,11 +59,11 @@ class TodoDeleteSheet extends StatelessWidget {
               alignment: Alignment.centerLeft,
               color: Colors.transparent,
               height: 50,
-              child: const Text(
+              child: Text(
                 "전체 삭제",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.red,
+                  color: p.accent,
                   fontSize: 16,
                 ),
               ),

@@ -5,9 +5,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hive_sample/model/tag.dart';
 import 'package:flutter_hive_sample/model/todo.dart';
-import 'package:flutter_hive_sample/model/todo_color.dart';
-import 'package:flutter_hive_sample/vm/vm_handler.dart';
+import 'package:flutter_hive_sample/theme/app_colors.dart';
+import 'package:flutter_hive_sample/vm/todo_list_notifier.dart';
+import 'package:flutter_hive_sample/vm/tag_list_notifier.dart';
+import 'package:flutter_hive_sample/vm/tag_handler.dart';
 
 class TodoItem extends ConsumerWidget {
   final Todo todo;
@@ -23,7 +26,9 @@ class TodoItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final vmHandler = ref.read(vmHandlerProvider.notifier);
+    final p = context.palette;
+    final todoNotifier = ref.read(todoListProvider.notifier);
+    final tags = ref.watch(tagListProvider).value ?? <Tag>[];
 
     return GestureDetector(
       /// [탭] - 수정 시트 열기
@@ -47,11 +52,11 @@ class TodoItem extends ConsumerWidget {
             GestureDetector(
               onTap: () {
                 HapticFeedback.mediumImpact();
-                vmHandler.toggleCheck(todo);
+                todoNotifier.toggleCheck(todo);
               },
               child: Icon(
                 todo.isCheck ? Icons.check_box : Icons.check_box_outline_blank,
-                color: const Color.fromRGBO(115, 115, 115, 1),
+                color: p.textSecondary,
                 size: 32,
               ),
             ),
@@ -63,7 +68,7 @@ class TodoItem extends ConsumerWidget {
               height: 25,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(25),
-                color: TodoColor.colorOf(todo.tag),
+                color: TagHandler.colorOf(tags, todo.tag),
               ),
             ),
 
@@ -73,41 +78,50 @@ class TodoItem extends ConsumerWidget {
                 margin: const EdgeInsets.only(left: 8, top: 2),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
                   children: [
                     /// 할 일 내용
                     Text(
                       todo.content.isEmpty ? "내용 없음" : todo.content,
                       style: todo.content.isEmpty
-                          ? const TextStyle(
-                              color: Color.fromRGBO(115, 115, 115, 1),
+                          ? TextStyle(
+                              color: p.textSecondary,
                               fontSize: 16,
                             )
-                          : const TextStyle(
-                              color: Colors.white,
+                          : TextStyle(
+                              color: p.textPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                     ),
-                    const SizedBox(height: 8),
 
-                    /// 날짜 + 수정 여부
+                    /// 태그 이름
+                    Text(
+                      TagHandler.nameOf(tags, todo.tag),
+                      style: TextStyle(
+                        color: p.textMeta,
+                        fontSize: 12,
+                      ),
+                    ),
+
+                    /// 날짜 + 수정 여부 (스타일 통일)
                     RichText(
                       text: TextSpan(
                         text: todo.updatedAt
                             .toString()
                             .substring(0, 19)
                             .replaceAll("-", ". "),
-                        style: const TextStyle(
-                          color: Color.fromRGBO(215, 215, 215, 1),
+                        style: TextStyle(
+                          color: p.textMeta,
                           fontSize: 12,
                         ),
                         children: [
                           if (todo.createdAt != todo.updatedAt) ...[
-                            const TextSpan(
+                            TextSpan(
                               text: "  (수정됨)",
                               style: TextStyle(
-                                fontSize: 10,
-                                color: Color.fromRGBO(64, 64, 64, 1),
+                                fontSize: 12,
+                                color: p.textMeta,
                               ),
                             ),
                           ],

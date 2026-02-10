@@ -21,7 +21,7 @@ class Todo {
   @HiveField(1)
   final String content;
 
-  /// [필드 2] 태그 (색상 인덱스) - TodoColor의 색상 목록 인덱스에 대응 (0~9)
+  /// [필드 2] 태그 ID - Tag.id에 대응
   @HiveField(2)
   final int tag;
 

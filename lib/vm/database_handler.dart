@@ -45,14 +45,16 @@ class DatabaseHandler {
     return await queryTodosFiltered(tag: tag);
   }
 
-  /// [queryTodosFiltered] - tag/keyword 조건으로 필터링하여 조회합니다.
+  /// [queryTodosFiltered] - tag/keyword/isCheck 조건으로 필터링하여 조회합니다.
   ///
   /// [매개변수]
   /// - tag: null이면 태그 필터 미적용
   /// - keyword: null/빈값이면 검색 미적용
+  /// - isCheck: null이면 전체, true이면 완료만, false이면 미완료만
   Future<List<Todo>> queryTodosFiltered({
     int? tag,
     String? keyword,
+    bool? isCheck,
   }) async {
     final box = _getBox();
     Iterable<Todo> todos = box.values;
@@ -61,18 +63,20 @@ class DatabaseHandler {
       todos = todos.where((e) => e.tag == tag);
     }
 
+    if (isCheck != null) {
+      todos = todos.where((e) => e.isCheck == isCheck);
+    }
+
     final query = keyword?.trim().toLowerCase();
     if (query != null && query.isNotEmpty) {
       todos = todos.where((e) => e.content.toLowerCase().contains(query));
     }
 
-    final list = todos.toList();
-    final unchecked = list.where((e) => !e.isCheck).toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    final checked = list.where((e) => e.isCheck).toList()
+    /// 수정일 내림차순 정렬 (최신 순)
+    final list = todos.toList()
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
-    return [...unchecked, ...checked];
+    return list;
   }
 
   /// [insertTodo] - 새로운 Todo를 Hive Box에 저장합니다.

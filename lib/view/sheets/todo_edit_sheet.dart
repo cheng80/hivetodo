@@ -4,9 +4,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hive_sample/model/tag.dart';
 import 'package:flutter_hive_sample/model/todo.dart';
-import 'package:flutter_hive_sample/model/todo_color.dart';
+import 'package:flutter_hive_sample/theme/app_colors.dart';
 import 'package:flutter_hive_sample/vm/edit_sheet_notifier.dart';
+import 'package:flutter_hive_sample/vm/tag_list_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
@@ -34,8 +36,6 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
   /// 할 일 내용 입력 컨트롤러
   late TextEditingController _controller;
 
-  /// 선택 가능한 색상 목록
-  late List<Color> _colors;
 
   @override
   void initState() {
@@ -62,18 +62,18 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
       }
     });
 
-    _colors = TodoColor.setColors();
   }
 
   @override
   void dispose() {
-    /// 컨트롤러와 ValueNotifier를 정리합니다.
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final p = context.palette;
+
     return GestureDetector(
       /// 빈 영역 탭 시 키보드 숨기기
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -97,38 +97,36 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
                   /// 타이틀: 생성/수정 모드에 따라 텍스트 변경
                   Text(
                     widget.update == null ? "CREATE TODO" : "UPDATE TODO",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      color: Colors.black,
+                      color: p.textOnSheet,
                       fontSize: 18,
                     ),
                   ),
 
                   Row(
+                    spacing: 20,
                     children: [
-                      /// [취소 버튼] - 변경 없이 시트를 닫습니다.
-                      /// Navigator.pop()에 값을 전달하지 않으므로 null이 반환됩니다.
+                      /// [취소 버튼]
                       GestureDetector(
                         onTap: () {
                           HapticFeedback.mediumImpact();
                           Navigator.of(context).pop();
                         },
-                        child: const Text(
+                        child: Text(
                           "CANCEL",
                           style: TextStyle(
                             fontWeight: FontWeight.w800,
-                            color: Color.fromRGBO(115, 115, 115, 1),
+                            color: p.iconOnSheet,
                             fontSize: 14,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 20),
 
                       /// [저장/변경 버튼] - 내용이 비어있으면 비활성화
                       Builder(
                         builder: (context) {
-                          final isEmpty =
-                              ref.watch(isContentEmptyProvider);
+                          final isEmpty = ref.watch(isContentEmptyProvider);
                           final label =
                               widget.update == null ? "SAVE" : "CHANGE";
                           return GestureDetector(
@@ -137,9 +135,7 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
                               label,
                               style: TextStyle(
                                 fontWeight: FontWeight.w800,
-                                color: isEmpty
-                                    ? const Color.fromRGBO(115, 115, 115, 1)
-                                    : Colors.red,
+                                color: isEmpty ? p.iconOnSheet : p.accent,
                                 fontSize: 14,
                               ),
                             ),
@@ -163,16 +159,16 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
                   return Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.black, width: 2),
+                      border: Border.all(color: p.textOnSheet, width: 2),
                     ),
                     child: TextFormField(
                       controller: _controller,
                       maxLength: 100,
                       minLines: 3,
                       maxLines: 5,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: p.textOnSheet,
                         fontSize: 16,
                       ),
                       decoration: InputDecoration(
@@ -181,8 +177,8 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
                         errorText: isEmpty ? '내용을 입력해주세요.' : null,
-                        errorStyle: const TextStyle(
-                          color: Colors.red,
+                        errorStyle: TextStyle(
+                          color: p.accent,
                           fontSize: 12,
                         ),
                       ),
@@ -193,58 +189,71 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
             ),
 
             /// ─────────────────────────────────────────────────
-            /// [tag 선택] - 색상 팔레트
+            /// [tag 선택] - 색상 팔레트 + 태그 이름
             /// ─────────────────────────────────────────────────
             _buildFormField(
               "tag",
               Builder(
                 builder: (context) {
-                  final selectedIndex = ref.watch(editTagProvider);
+                  final selectedId = ref.watch(editTagProvider);
+                  final tags = ref.watch(tagListProvider).value ?? <Tag>[];
                   return Container(
                     width: MediaQuery.of(context).size.width,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     child: Wrap(
                       spacing: 8,
                       runSpacing: 10,
-                      children: List.generate(
-                        _colors.length,
-                        (index) => GestureDetector(
+                      children: tags.map((tag) {
+                        final isSelected = selectedId == tag.id;
+                        return GestureDetector(
                           onTap: () {
                             HapticFeedback.mediumImpact();
-                            ref.read(editTagProvider.notifier).setTag(index);
+                            ref.read(editTagProvider.notifier).setTag(tag.id);
                           },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                border: selectedIndex == index
-                                    ? Border.all(
-                                        color: const Color.fromRGBO(
-                                            91, 91, 91, 1),
-                                        width: 2,
-                                      )
-                                    : null,
-                                borderRadius: BorderRadius.circular(8),
-                                color: selectedIndex == index
-                                    ? _colors[index]
-                                    : _colors[index].withValues(alpha: 0.6),
-                              ),
-                              child: Visibility(
-                                visible: selectedIndex == index,
-                                child: const Icon(
-                                  Icons.check,
-                                  color: Colors.black,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 4,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: p.sheetBackground,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    border: isSelected
+                                        ? Border.all(
+                                            color: p.iconOnSheet,
+                                            width: 2,
+                                          )
+                                        : null,
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: isSelected
+                                        ? tag.color
+                                        : tag.color.withValues(alpha: 0.6),
+                                  ),
+                                  child: Visibility(
+                                    visible: isSelected,
+                                    child: Icon(
+                                      Icons.check,
+                                      color: p.textOnSheet,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                              Text(
+                                tag.name,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: p.iconOnSheet,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
+                        );
+                      }).toList(),
                     ),
                   );
                 },
@@ -256,11 +265,7 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
     );
   }
 
-  /// [_onSave] - 저장/변경 버튼 탭 시 호출됩니다.
-  ///
-  /// Navigator.pop()으로 Todo 객체를 반환합니다.
-  /// 부모 위젯(TodoHome)의 _showEditSheet()에서 이 값을 받아
-  /// VMHandler를 통해 Hive에 저장합니다.
+  /// [_onSave] - 저장/변경 버튼 탭 시 호출
   void _onSave() {
     HapticFeedback.mediumImpact();
 
@@ -289,6 +294,7 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
 
   /// [_buildFormField] - 레이블 + 입력 위젯 조합 헬퍼
   Widget _buildFormField(String label, Widget child) {
+    final p = context.palette;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -298,9 +304,9 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
             margin: const EdgeInsets.only(top: 16, bottom: 8),
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Color.fromRGBO(115, 115, 115, 1),
+                color: p.iconOnSheet,
               ),
             ),
           ),
