@@ -153,29 +153,14 @@ class TodoItem extends ConsumerWidget {
                                 fontSize: 12,
                               ),
                             ),
-                            RichText(
-                              text: TextSpan(
-                                text: todo.updatedAt
-                                    .toString()
-                                    .substring(0, 19)
-                                    .replaceAll("-", ". "),
+                            if (todo.dueDate != null)
+                              Text(
+                                _formatDueDate(todo.dueDate!),
                                 style: TextStyle(
                                   color: p.textMeta,
                                   fontSize: 12,
                                 ),
-                                children: [
-                                  if (todo.createdAt != todo.updatedAt) ...[
-                                    TextSpan(
-                                      text: "  (수정됨)",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: p.textMeta,
-                                      ),
-                                    ),
-                                  ],
-                                ],
                               ),
-                            ),
                           ],
                         ),
                       ),
@@ -184,16 +169,29 @@ class TodoItem extends ConsumerWidget {
                 ),
               ),
 
-            /// [드래그 핸들] - 우측 영역 전체 높이, 아이콘 세로 중앙
+            /// [알람 시계 아이콘] - dueDate 설정 시 표시, 미설정 시에도 영역 유지
+            SizedBox(
+              width: 40,
+              child: Center(
+                child: Icon(
+                  Icons.access_alarm,
+                  color: todo.dueDate != null
+                      ? p.alarmAccent
+                      : Colors.transparent,
+                  size: 28,
+                ),
+              ),
+            ),
+            /// [드래그 핸들] - 우측 영역, 폭 축소
             ReorderableDragStartListener(
               index: index,
               child: SizedBox(
-                width: 56,
+                width: 40,
                 child: Center(
                   child: Icon(
                     Icons.drag_handle,
                     color: p.textSecondary,
-                    size: 24,
+                    size: 22,
                   ),
                 ),
               ),
@@ -204,4 +202,13 @@ class TodoItem extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// 마감일 포맷 (예: 2025년 2월 11일 오후 3:30)
+String _formatDueDate(DateTime d) {
+  final period = d.hour < 12 ? "오전" : "오후";
+  final hour12 =
+      d.hour == 0 ? 12 : (d.hour > 12 ? d.hour - 12 : d.hour);
+  final min = d.minute.toString().padLeft(2, "0");
+  return "${d.year}년 ${d.month}월 ${d.day}일 $period $hour12:$min";
 }

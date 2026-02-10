@@ -33,6 +33,7 @@ class CommonColorScheme {
   final Color searchFieldBg; // 검색 필드 배경
   final Color searchFieldText; // 검색 필드 텍스트
   final Color searchFieldHint; // 검색 필드 힌트
+  final Color alarmAccent; // 마감일/알람 아이콘 색 (노란 계열)
 
   const CommonColorScheme({
     required this.background,
@@ -56,5 +57,6 @@ class CommonColorScheme {
     required this.searchFieldBg,
     required this.searchFieldText,
     required this.searchFieldHint,
+    required this.alarmAccent,
   });
 }

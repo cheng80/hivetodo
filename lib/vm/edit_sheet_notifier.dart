@@ -16,10 +16,24 @@ class IsContentEmptyNotifier extends Notifier<bool> {
   void setEmpty(bool value) => state = value;
 }
 
+// 편집 시트 로컬 상태 - 마감일시 (null이면 미설정)
+class EditDueDateNotifier extends Notifier<DateTime?> {
+  @override
+  DateTime? build() => null;
+
+  void setDueDate(DateTime? value) => state = value;
+
+  void clear() => state = null;
+}
+
 // 화면 종료 시 자동 해제
 final editTagProvider =
     NotifierProvider.autoDispose<EditTagNotifier, int>(EditTagNotifier.new);
 final isContentEmptyProvider =
     NotifierProvider.autoDispose<IsContentEmptyNotifier, bool>(
   IsContentEmptyNotifier.new,
+);
+final editDueDateProvider =
+    NotifierProvider.autoDispose<EditDueDateNotifier, DateTime?>(
+  EditDueDateNotifier.new,
 );

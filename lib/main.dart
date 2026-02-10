@@ -5,15 +5,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tagdo/model/tag.dart';
 import 'package:tagdo/model/todo.dart';
+import 'package:tagdo/service/notification_service.dart';
 import 'package:tagdo/util/common_util.dart';
 import 'package:tagdo/view/home.dart';
 import 'package:tagdo/vm/theme_notifier.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:tagdo/vm/todo_list_notifier.dart';
 
 /// 앱의 메인 함수
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   /// [Step 0] GetStorage 초기화 (테마 등 경량 설정 저장용)
   await GetStorage.init();
 
@@ -28,18 +32,104 @@ void main() async {
   await Hive.openBox<Todo>("todo");
   await Hive.openBox<Tag>("tag");
 
-  /// [Step 4] ProviderScope로 감싸서 Riverpod 상태관리를 활성화합니다.
+  /// [Step 4] 알람 서비스 초기화
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+  await notificationService.requestPermission();
+
+  /// [Step 5] ProviderScope로 감싸서 Riverpod 상태관리를 활성화합니다.
   runApp(const ProviderScope(child: MyApp()));
 }
 
 /// ============================================================================
 /// [MyApp] - 앱의 루트 위젯
 /// ============================================================================
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
+  final NotificationService _notificationService = NotificationService();
+  bool _isInitialCleanupDone = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialCleanupDone) {
+      _isInitialCleanupDone = true;
+      _performInitialCleanup();
+    }
+  }
+
+  Future<void> _performInitialCleanup() async {
+    try {
+      final todos = await ref.read(todoListProvider.future);
+      final notifier = ref.read(todoListProvider.notifier);
+      await _notificationService.cleanupExpiredNotifications(
+        todos: todos,
+        updateTodo: (todo) => notifier.updateTodo(todo),
+      );
+      // 앱 시작 시 Hive Box의 마감일 Todo 알람 재등록 (DB 로드만으로는 알람 미등록됨)
+      for (final todo in todos) {
+        if (todo.dueDate != null) {
+          await _notificationService.scheduleNotification(todo);
+        }
+      }
+      _checkAlarmStatus(todos);
+    } catch (_) {}
+  }
+
+  /// Hive Box dueDate Todo + 등록된 알람 목록 확인 (디버깅)
+  void _checkAlarmStatus(List<Todo> todos) {
+    final withDueDate = todos.where((t) => t.dueDate != null).toList();
+    debugPrint('[AlarmCheck] === Hive Box 마감일 있는 Todo ${withDueDate.length}개 ===');
+    for (final t in withDueDate) {
+      debugPrint('[AlarmCheck]   no=${t.no}, content=${t.content}, dueDate=${t.dueDate}');
+    }
+    _notificationService.checkPendingNotifications();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _performCleanupOnResume().catchError((_) {});
+    }
+  }
+
+  Future<void> _performCleanupOnResume() async {
+    try {
+      final todos = await ref.read(todoListProvider.future);
+      final notifier = ref.read(todoListProvider.notifier);
+      await _notificationService.cleanupExpiredNotifications(
+        todos: todos,
+        updateTodo: (todo) => notifier.updateTodo(todo),
+      );
+      for (final todo in todos) {
+        if (todo.dueDate != null) {
+          await _notificationService.scheduleNotification(todo);
+        }
+      }
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeNotifierProvider);
 
     return MaterialApp(

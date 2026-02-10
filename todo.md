@@ -62,12 +62,19 @@
   - Todo 생성/수정 바텀시트 하단에 "태그 관리" 버튼 추가
   - Navigator.push로 태그 설정 화면 이동 → 복귀 시 태그 목록 자동 갱신
 
-- [ ] **마감일 및 알림 기능 (단계적 구현)**
-  - 1단계: Todo 모델에 `dueDate` (DateTime?) 필드 추가 + TypeAdapter 수정
-  - 2단계: 편집 시트에 날짜/시간 선택 UI (DatePicker + TimePicker)
-  - 3단계: 홈 화면 Todo 아이템에 마감일 표시 (임박 시 강조)
-  - 4단계: `flutter_local_notifications` 연동 (알림 예약/취소/수정)
-  - 5단계: iOS 권한 요청 처리 (Info.plist, AppDelegate 설정)
+- [x] **마감일 및 알림 기능 (단계적 구현)**
+  - [x] 1단계: Todo 모델에 `dueDate` (DateTime?) 필드 추가 + TypeAdapter 수정
+  - [x] 2단계: 편집 시트에 날짜/시간 선택 UI (DatePicker + TimePicker) - 바텀시트 내 마감일 필드
+  - [x] 3단계: 홈 화면 Todo 아이템에 마감일 표시 (알람 아이콘 + 날짜/시간 텍스트)
+  - [x] 4단계: `flutter_local_notifications` 연동 (알림 예약/취소/수정)
+    - `NotificationService`: scheduleNotification, cancelNotification, cleanupExpiredNotifications
+    - TodoListNotifier insert/update/delete 시 알람 등록/취소 연동
+    - 앱 시작/포그라운드 복귀 시 Hive Box 마감일 Todo 알람 재등록 (DB 로드만으로는 미등록됨)
+    - Android 알람 ID 32비트 제한 처리 (`_toNotificationId`)
+    - 알람 등록 시 payload에 dueDate 저장 → 로그에 dueDate 출력
+  - [x] 5단계: iOS 권한 요청 처리 (Info.plist, AppDelegate 설정)
+    - `requestPermission`, `DarwinInitializationSettings` (presentBanner, presentList 등)
+  - Drawer "알람 상태 확인" 메뉴: Hive Box 마감일 Todo 개수 + 등록된 알람 개수 표시
 
 ## 버그 수정 / 개선
 
@@ -107,6 +114,16 @@
 - [x] **Todo 아이템 위젯 분리**
   - `home.dart`의 `_buildTodoItem()`을 별도 위젯 파일로 분리
   - `view/todo_item.dart` 생성 → `ConsumerWidget`으로 구현
+
+- [x] **TodoEditSheet 위젯 모듈화**
+  - `todo_edit_sheet.dart` 500줄+ → 관련 위젯을 `sheets/todo_edit_sheet/` 폴더로 분리
+  - `edit_form_field.dart`, `edit_sheet_header.dart`, `edit_sheet_content_field.dart`, `edit_sheet_due_date_field.dart`, `edit_sheet_tag_selector.dart`
+
+- [x] **마감일(dueDate) UI 통합**
+  - Todo 카드: 생성/수정 시간 제거 → 마감일 영역으로 대체 (설정 시에만 표시)
+  - 핸들 아이콘 왼쪽에 알람 아이콘(`Icons.access_alarm`) - dueDate 설정 시 노란색(`alarmAccent`), 미설정 시 영역만 유지
+  - 테마에 `alarmAccent` 색상 추가 (라이트/다크 공통)
+  - `edit_sheet_notifier.dart`에 `editDueDateProvider` 추가, `Todo.copyWith`에 `clearDueDate` 파라미터
 
 - [ ] **Riverpod 코드 제너레이션 방식 추가 (`@riverpod`)**
   - 참고 프로젝트의 `vm_handler_gen.dart`처럼 어노테이션 방식 ViewModel 추가

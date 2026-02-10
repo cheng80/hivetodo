@@ -38,4 +38,5 @@ class AppColorScheme {
   Color get searchFieldBg => common.searchFieldBg;
   Color get searchFieldText => common.searchFieldText;
   Color get searchFieldHint => common.searchFieldHint;
+  Color get alarmAccent => common.alarmAccent;
 }

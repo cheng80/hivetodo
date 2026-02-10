@@ -40,6 +40,10 @@ class Todo {
   @HiveField(6, defaultValue: 0)
   final int sortOrder;
 
+  /// [필드 7] 마감일시 (알림용, null이면 미설정)
+  @HiveField(7)
+  final DateTime? dueDate;
+
   /// 기본 생성자
   const Todo({
     required this.no,
@@ -49,14 +53,14 @@ class Todo {
     required this.createdAt,
     required this.updatedAt,
     this.sortOrder = 0,
+    this.dueDate,
   });
 
   /// [팩토리 생성자] Todo.create - 새로운 Todo 생성
   /// - no: 밀리초 타임스탬프로 유니크 ID 자동 생성
   /// - isCheck: 항상 false (미완료 상태)
   /// - createdAt, updatedAt: 현재 시간으로 동일하게 설정
-  factory Todo.create(String content, int current, {int sortOrder = 0}) {
-    /// DateTime.now()를 한 번만 호출하여 createdAt과 updatedAt에 동일한 값을 할당합니다.
+  factory Todo.create(String content, int current, {int sortOrder = 0, DateTime? dueDate}) {
     final now = DateTime.now();
     return Todo(
       no: now.millisecondsSinceEpoch,
@@ -66,10 +70,12 @@ class Todo {
       createdAt: now,
       updatedAt: now,
       sortOrder: sortOrder,
+      dueDate: dueDate,
     );
   }
 
   /// [copyWith] - 불변 객체의 일부 필드만 변경한 복사본 생성
+  /// [clearDueDate] true이면 dueDate를 null로 설정 (마감일 해제)
   Todo copyWith({
     final int? no,
     final String? content,
@@ -78,6 +84,8 @@ class Todo {
     final DateTime? createdAt,
     final DateTime? updatedAt,
     final int? sortOrder,
+    final DateTime? dueDate,
+    final bool clearDueDate = false,
   }) {
     return Todo(
       no: no ?? this.no,
@@ -87,11 +95,12 @@ class Todo {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       sortOrder: sortOrder ?? this.sortOrder,
+      dueDate: clearDueDate ? null : (dueDate ?? this.dueDate),
     );
   }
 
   /// 디버깅용 toString
   @override
   String toString() =>
-      "Todo(no: $no, content: $content, tag: $tag, isCheck: $isCheck, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt)";
+      "Todo(no: $no, content: $content, tag: $tag, isCheck: $isCheck, sortOrder: $sortOrder, dueDate: $dueDate, createdAt: $createdAt, updatedAt: $updatedAt)";
 }

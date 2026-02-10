@@ -47,6 +47,7 @@ class AppColors {
       searchFieldBg: Colors.white,
       searchFieldText: Colors.black,
       searchFieldHint: Color.fromRGBO(120, 120, 120, 1),
+      alarmAccent: Color(0xFFFFB300),
     ),
   );
 
@@ -76,6 +77,7 @@ class AppColors {
       searchFieldBg: Color(0xFFE0E0E0),
       searchFieldText: Color(0xFF212121),
       searchFieldHint: Color(0xFF757575),
+      alarmAccent: Color(0xFFFFB300),
     ),
   );
 }

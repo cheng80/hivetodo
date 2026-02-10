@@ -3,10 +3,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tagdo/service/notification_service.dart';
 import 'package:tagdo/theme/app_colors.dart';
 import 'package:tagdo/theme/config_ui.dart';
 import 'package:tagdo/view/tag_settings.dart';
 import 'package:tagdo/vm/theme_notifier.dart';
+import 'package:tagdo/vm/todo_list_notifier.dart';
 
 /// AppDrawer - 설정 및 부가 기능을 위한 사이드 메뉴
 class AppDrawer extends ConsumerWidget {
@@ -92,6 +94,35 @@ class AppDrawer extends ConsumerWidget {
                   context,
                   MaterialPageRoute(builder: (_) => const TagSettings()),
                 );
+              },
+            ),
+
+            /// 알람 상태 확인 (디버깅)
+            ListTile(
+              leading: Icon(Icons.access_alarm, color: p.icon),
+              title: Text(
+                '알람 상태 확인',
+                style: TextStyle(color: p.textPrimary, fontSize: 16),
+              ),
+              trailing: Icon(Icons.info_outline, color: p.textSecondary),
+              onTap: () async {
+                Navigator.pop(context);
+                final todos = await ref.read(todoListProvider.future);
+                final withDueDate =
+                    todos.where((t) => t.dueDate != null).toList();
+                final pending =
+                    await NotificationService().checkPendingNotifications();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '마감일 Todo ${withDueDate.length}개, '
+                        '등록된 알람 ${pending.length}개\n'
+                        '(콘솔에서 상세 확인)',
+                      ),
+                    ),
+                  );
+                }
               },
             ),
           ],

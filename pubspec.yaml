@@ -34,6 +34,9 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+
+  flutter_localizations:
+    sdk: flutter
   
   flutter_riverpod: ^3.2.0 # 리버팟 상태관리 패키지
 
@@ -51,6 +54,7 @@ dependencies:
 
   # 로컬 알람 등록시 필요
   flutter_local_notifications: ^20.0.0
+  timezone: ^0.10.0
 
   # 권한 관리
   permission_handler: ^12.0.1

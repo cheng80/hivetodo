@@ -49,7 +49,7 @@ dev_dependencies:
 - 새 필드 추가 시 기존 최대 인덱스 + 1 사용
 - `defaultValue` 설정으로 기존 데이터 마이그레이션 대응
 - 현재 필드 인덱스:
-  - **Todo**: 0(no), 1(content), 2(tag), 3(isCheck), 4(createdAt), 5(updatedAt), 6(sortOrder)
+  - **Todo**: 0(no), 1(content), 2(tag), 3(isCheck), 4(createdAt), 5(updatedAt), 6(sortOrder), 7(dueDate)
   - **Tag**: 0(id), 1(name), 2(colorValue)
 
 ---

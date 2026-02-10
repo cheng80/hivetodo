@@ -3,6 +3,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagdo/model/todo.dart';
+import 'package:tagdo/service/notification_service.dart';
 import 'package:tagdo/vm/database_handler.dart';
 
 /// TodoListNotifier - Riverpod AsyncNotifier 기반 ViewModel
@@ -11,6 +12,7 @@ import 'package:tagdo/vm/database_handler.dart';
 /// state는 AsyncValue<List<Todo>>로, 로딩/데이터/에러 3가지 상태를 포함합니다.
 class TodoListNotifier extends AsyncNotifier<List<Todo>> {
   final DatabaseHandler _dbHandler = DatabaseHandler();
+  final NotificationService _notificationService = NotificationService();
 
   @override
   Future<List<Todo>> build() async {
@@ -20,13 +22,20 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
   /// 새 Todo 생성 (맨 아래에 배치)
   Future<void> insertTodo(Todo todo) async {
     final order = _dbHandler.nextSortOrder();
-    await _dbHandler.insertTodo(todo.copyWith(sortOrder: order));
+    final inserted = todo.copyWith(sortOrder: order);
+    await _dbHandler.insertTodo(inserted);
+    await _notificationService.scheduleNotification(inserted);
     ref.invalidateSelf();
   }
 
   /// Todo 수정
   Future<void> updateTodo(Todo todo) async {
     await _dbHandler.updateTodo(todo);
+    if (todo.dueDate == null) {
+      await _notificationService.cancelNotification(todo.no);
+    } else {
+      await _notificationService.scheduleNotification(todo);
+    }
     ref.invalidateSelf();
   }
 
@@ -38,18 +47,26 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
 
   /// Todo 삭제
   Future<void> deleteTodo(int no) async {
+    await _notificationService.cancelNotification(no);
     await _dbHandler.deleteTodo(no);
     ref.invalidateSelf();
   }
 
   /// 완료 항목 일괄 삭제
   Future<void> deleteCheckedTodos() async {
+    final todos = state.value;
+    if (todos != null) {
+      for (final todo in todos.where((t) => t.isCheck)) {
+        await _notificationService.cancelNotification(todo.no);
+      }
+    }
     await _dbHandler.deleteCheckedTodos();
     ref.invalidateSelf();
   }
 
   /// 전체 삭제
   Future<void> deleteAllTodos() async {
+    await _notificationService.cancelAllNotifications();
     await _dbHandler.deleteAllTodos();
     ref.invalidateSelf();
   }
