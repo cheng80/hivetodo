@@ -1,0 +1,91 @@
+// todo.dart
+// 핵심 기능만 간단히 요약
+
+
+import 'package:hive_flutter/hive_flutter.dart';
+
+/// build_runner가 자동 생성할 TypeAdapter 파일을 연결합니다.
+/// 명령어: flutter packages pub run build_runner build
+part 'todo.g.dart';
+
+/// Hive에 저장할 수 있는 Todo 데이터 모델
+/// typeId: 1 → Hive 내부에서 이 타입을 구분하기 위한 고유 식별자
+@HiveType(typeId: 1)
+class Todo {
+  /// [필드 0] 고유 번호 - 밀리초 타임스탬프로 유니크한 값을 생성합니다.
+  /// Hive Box에서 key로도 사용됩니다 (put("${todo.no}", todo)).
+  @HiveField(0)
+  final int no;
+
+  /// [필드 1] 할 일 내용 - 사용자가 입력한 텍스트
+  @HiveField(1)
+  final String content;
+
+  /// [필드 2] 태그 (색상 인덱스) - TodoColor의 색상 목록 인덱스에 대응 (0~9)
+  @HiveField(2)
+  final int tag;
+
+  /// [필드 3] 완료 여부 - true이면 완료, false이면 미완료
+  @HiveField(3)
+  final bool isCheck;
+
+  /// [필드 4] 생성 일시
+  @HiveField(4)
+  final DateTime createdAt;
+
+  /// [필드 5] 수정 일시 - 정렬 기준으로 사용 (최신 수정 순)
+  @HiveField(5)
+  final DateTime updatedAt;
+
+  /// 기본 생성자
+  const Todo({
+    required this.no,
+    required this.content,
+    required this.tag,
+    required this.isCheck,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  /// [팩토리 생성자] Todo.create - 새로운 Todo 생성
+  /// - no: 밀리초 타임스탬프로 유니크 ID 자동 생성
+  /// - isCheck: 항상 false (미완료 상태)
+  /// - createdAt, updatedAt: 현재 시간으로 동일하게 설정
+  factory Todo.create(String content, int current) {
+    /// DateTime.now()를 한 번만 호출하여 createdAt과 updatedAt에 동일한 값을 할당합니다.
+    /// 각각 따로 호출하면 마이크로초 단위 차이가 생겨 "수정됨"으로 오인됩니다.
+    final now = DateTime.now();
+    return Todo(
+      no: now.millisecondsSinceEpoch,
+      content: content,
+      tag: current,
+      isCheck: false,
+      createdAt: now,
+      updatedAt: now,
+    );
+  }
+
+  /// [copyWith] - 불변 객체의 일부 필드만 변경한 복사본 생성
+  Todo copyWith({
+    final int? no,
+    final String? content,
+    final int? tag,
+    final bool? isCheck,
+    final DateTime? createdAt,
+    final DateTime? updatedAt,
+  }) {
+    return Todo(
+      no: no ?? this.no,
+      content: content ?? this.content,
+      tag: tag ?? this.tag,
+      isCheck: isCheck ?? this.isCheck,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  /// 디버깅용 toString
+  @override
+  String toString() =>
+      "Todo(no: $no, content: $content, tag: $tag, isCheck: $isCheck, createdAt: $createdAt, updatedAt: $updatedAt)";
+}
