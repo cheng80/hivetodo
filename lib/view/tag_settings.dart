@@ -1,6 +1,7 @@
 // tag_settings.dart
 // 태그 관리 화면 (신규 생성, 수정, 삭제)
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -26,7 +27,7 @@ class TagSettings extends ConsumerWidget {
         backgroundColor: p.background,
         iconTheme: IconThemeData(color: p.icon),
         title: Text(
-          '태그 관리',
+          'tagManage'.tr(),
           style: TextStyle(
             color: p.textPrimary,
             fontWeight: FontWeight.w900,
@@ -46,7 +47,7 @@ class TagSettings extends ConsumerWidget {
           if (tags.isEmpty) {
             return Center(
               child: Text(
-                '태그가 없습니다.\n+ 버튼으로 추가해 보세요!',
+                'tagEmpty'.tr(),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: p.textSecondary, fontSize: 16),
               ),
@@ -73,7 +74,7 @@ class TagSettings extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
-          child: Text('오류: $e', style: TextStyle(color: p.textPrimary)),
+          child: Text('${'errorOccurred'.tr()}: $e', style: TextStyle(color: p.textPrimary)),
         ),
       ),
     );
@@ -102,22 +103,22 @@ class TagSettings extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: p.sheetBackground,
-        title: Text('태그 삭제', style: TextStyle(color: p.textOnSheet)),
+        title: Text('tagDelete'.tr(), style: TextStyle(color: p.textOnSheet)),
         content: Text(
-          '"${tag.name}" 태그를 삭제하시겠습니까?',
+          'tagDeleteConfirm'.tr(namedArgs: {'name': tag.name}),
           style: TextStyle(color: p.iconOnSheet),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('취소', style: TextStyle(color: p.iconOnSheet)),
+            child: Text('cancel'.tr(), style: TextStyle(color: p.iconOnSheet)),
           ),
           TextButton(
             onPressed: () {
               ref.read(tagListProvider.notifier).deleteTag(tag.id);
               Navigator.pop(ctx);
             },
-            child: Text('삭제', style: TextStyle(color: p.accent)),
+            child: Text('delete'.tr(), style: TextStyle(color: p.accent)),
           ),
         ],
       ),
@@ -233,7 +234,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
         children: [
           /// 헤더
           Text(
-            _isEdit ? '태그 수정' : '태그 추가',
+            _isEdit ? 'tagEdit'.tr() : 'tagAdd'.tr(),
             style: TextStyle(
               color: p.textOnSheet,
               fontSize: 18,
@@ -249,7 +250,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
             style: TextStyle(color: p.textOnSheet, fontSize: 16),
             cursorColor: p.textOnSheet,
             decoration: InputDecoration(
-              labelText: '태그 이름',
+              labelText: 'tagName'.tr(),
               labelStyle: TextStyle(color: p.iconOnSheet),
               counterStyle: TextStyle(color: p.iconOnSheet),
               enabledBorder: OutlineInputBorder(
@@ -269,7 +270,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
 
           /// 색상 선택
           Text(
-            '색상',
+            'color'.tr(),
             style: TextStyle(
               color: p.iconOnSheet,
               fontWeight: FontWeight.bold,
@@ -299,7 +300,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
               OutlinedButton.icon(
                 onPressed: _showPresetPicker,
                 icon: Icon(Icons.palette, size: 18, color: p.textOnSheet),
-                label: Text('프리셋', style: TextStyle(color: p.textOnSheet)),
+                label: Text('preset'.tr(), style: TextStyle(color: p.textOnSheet)),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: p.iconOnSheet),
                   shape: RoundedRectangleBorder(
@@ -312,7 +313,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
               OutlinedButton.icon(
                 onPressed: _showMaterialPicker,
                 icon: Icon(Icons.color_lens, size: 18, color: p.textOnSheet),
-                label: Text('전체 색상', style: TextStyle(color: p.textOnSheet)),
+                label: Text('allColors'.tr(), style: TextStyle(color: p.textOnSheet)),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: p.iconOnSheet),
                   shape: RoundedRectangleBorder(
@@ -339,7 +340,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
                 ),
               ),
               child: Text(
-                _isEdit ? '수정' : '추가',
+                _isEdit ? 'edit'.tr() : 'add'.tr(),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -359,7 +360,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: p.sheetBackground,
-        title: Text('프리셋 색상', style: TextStyle(color: p.textOnSheet)),
+        title: Text('presetColors'.tr(), style: TextStyle(color: p.textOnSheet)),
         content: Wrap(
           spacing: 10,
           runSpacing: 10,
@@ -400,7 +401,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: p.sheetBackground,
-        title: Text('색상 선택', style: TextStyle(color: p.textOnSheet)),
+        title: Text('colorSelect'.tr(), style: TextStyle(color: p.textOnSheet)),
         content: MaterialPicker(
           pickerColor: _selectedColor,
           onColorChanged: (color) {

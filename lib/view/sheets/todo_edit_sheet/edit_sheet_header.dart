@@ -1,6 +1,7 @@
 // edit_sheet_header.dart
 // TodoEditSheet 상단 헤더 (타이틀 + CANCEL/SAVE 버튼)
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,7 @@ class EditSheetHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final isEmpty = ref.watch(isContentEmptyProvider);
-    final label = isUpdate ? "CHANGE" : "SAVE";
+    final label = isUpdate ? "change".tr() : "save".tr();
 
     return Container(
       margin: const EdgeInsets.only(top: 16),
@@ -34,7 +35,7 @@ class EditSheetHeader extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            isUpdate ? "UPDATE TODO" : "CREATE TODO",
+            isUpdate ? "updateTodo".tr() : "createTodo".tr(),
             style: TextStyle(
               fontWeight: FontWeight.w800,
               color: p.textOnSheet,
@@ -50,7 +51,7 @@ class EditSheetHeader extends ConsumerWidget {
                   Navigator.of(context).pop();
                 },
                 child: Text(
-                  "CANCEL",
+                  "cancel".tr(),
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     color: p.iconOnSheet,

@@ -1,6 +1,7 @@
 // home_widgets.dart
 // 홈 화면에서 사용하는 분리된 위젯 모음
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,7 +67,7 @@ class HomeSearchField extends ConsumerWidget {
       style: TextStyle(color: p.searchFieldText, fontSize: 16),
       cursorColor: p.searchFieldText,
       decoration: InputDecoration(
-        hintText: '검색',
+        hintText: 'search'.tr(),
         hintStyle: TextStyle(color: p.searchFieldHint),
         filled: true,
         fillColor: p.searchFieldBg,
@@ -112,15 +113,44 @@ class HomeFilterRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        ConfigUI.screenPaddingH, 12, ConfigUI.screenPaddingH, 0,
+        ConfigUI.screenPaddingH,
+        12,
+        ConfigUI.screenPaddingH,
+        0,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStatusChips(context, ref),
+          /// [전체][미완료][완료] 왼쪽 / [🔔] 오른쪽 정렬
+          Row(
+            children: [
+              _buildStatusChips(context, ref),
+              const Spacer(),
+              _buildDueDateFilterIcon(context, ref),
+            ],
+          ),
           _buildTagDropdown(context, ref),
         ],
       ),
+    );
+  }
+
+  /// 마감일 필터 아이콘 (탭 시 마감일 있는 것만 ↔ 전체)
+  Widget _buildDueDateFilterIcon(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final isActive = ref.watch(dueDateFilterProvider) == true;
+
+    return IconButton(
+      onPressed: () {
+        HapticFeedback.mediumImpact();
+        ref.read(dueDateFilterProvider.notifier).toggle();
+      },
+      icon: Icon(
+        Icons.access_alarm,
+        color: isActive ? p.alarmAccent : p.icon,
+        size: 28,
+      ),
+      tooltip: isActive ? 'dueDateFilterOn'.tr() : 'dueDateFilterOff'.tr(),
     );
   }
 
@@ -130,7 +160,7 @@ class HomeFilterRow extends ConsumerWidget {
     final tagNames = ref.watch(tagListProvider).value ?? <Tag>[];
 
     final items = <DropdownMenuItem<int?>>[
-      const DropdownMenuItem<int?>(value: null, child: Text('전체')),
+      DropdownMenuItem<int?>(value: null, child: Text('all'.tr())),
       ...tagNames.map(
         (tag) => DropdownMenuItem<int?>(
           value: tag.id,
@@ -166,10 +196,8 @@ class HomeFilterRow extends ConsumerWidget {
         selectedItemBuilder: (context) {
           return [
             /// '전체' 항목
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text('전체'),
-            ),
+            Align(alignment: Alignment.centerLeft, child: Text('all'.tr())),
+
             /// 태그 항목 (색상 원 + 이름)
             ...tagNames.map(
               (tag) => Align(
@@ -220,6 +248,7 @@ class HomeFilterRow extends ConsumerWidget {
           decoration: BoxDecoration(
             color: selected ? p.chipSelectedBg : p.chipUnselectedBg,
             borderRadius: ConfigUI.chipRadius,
+
             /// 3번 Soft UI: 칩에 살짝 입체감
             boxShadow: [
               BoxShadow(
@@ -244,9 +273,9 @@ class HomeFilterRow extends ConsumerWidget {
     return Row(
       spacing: 8,
       children: [
-        chip(TodoStatus.all, '전체'),
-        chip(TodoStatus.unchecked, '미완료'),
-        chip(TodoStatus.checked, '완료'),
+        chip(TodoStatus.all, 'all'.tr()),
+        chip(TodoStatus.unchecked, 'unchecked'.tr()),
+        chip(TodoStatus.checked, 'checked'.tr()),
       ],
     );
   }

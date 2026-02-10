@@ -1,6 +1,7 @@
 // app_drawer.dart
 // 앱 사이드 메뉴 (Drawer)
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagdo/service/notification_service.dart';
@@ -39,7 +40,7 @@ class AppDrawer extends ConsumerWidget {
                 children: [
                   Icon(Icons.settings, color: p.icon, size: 28),
                   Text(
-                    '세팅',
+                    'settings'.tr(),
                     style: TextStyle(
                       color: p.textPrimary,
                       fontSize: 22,
@@ -61,7 +62,7 @@ class AppDrawer extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '다크 모드',
+                    'darkMode'.tr(),
                     style: TextStyle(color: p.textPrimary, fontSize: 16),
                   ),
                   Switch(
@@ -80,11 +81,25 @@ class AppDrawer extends ConsumerWidget {
 
             Divider(color: p.divider, height: 1),
 
+            /// 언어 선택
+            ListTile(
+              leading: Icon(Icons.language, color: p.icon),
+              title: Text(
+                'language'.tr(),
+                style: TextStyle(color: p.textPrimary, fontSize: 16),
+              ),
+              trailing: Icon(Icons.chevron_right, color: p.textSecondary),
+              onTap: () {
+                Navigator.pop(context);
+                _showLanguagePicker(context);
+              },
+            ),
+
             /// 태그 관리 버튼
             ListTile(
               leading: Icon(Icons.label_outline, color: p.icon),
               title: Text(
-                '태그 관리',
+                'tagManage'.tr(),
                 style: TextStyle(color: p.textPrimary, fontSize: 16),
               ),
               trailing: Icon(Icons.chevron_right, color: p.textSecondary),
@@ -101,7 +116,7 @@ class AppDrawer extends ConsumerWidget {
             ListTile(
               leading: Icon(Icons.access_alarm, color: p.icon),
               title: Text(
-                '알람 상태 확인',
+                'alarmStatusCheck'.tr(),
                 style: TextStyle(color: p.textPrimary, fontSize: 16),
               ),
               trailing: Icon(Icons.info_outline, color: p.textSecondary),
@@ -116,9 +131,10 @@ class AppDrawer extends ConsumerWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        '마감일 Todo ${withDueDate.length}개, '
-                        '등록된 알람 ${pending.length}개\n'
-                        '(콘솔에서 상세 확인)',
+                        'alarmStatusSummary'.tr(namedArgs: {
+                          'count': '${withDueDate.length}',
+                          'alarmCount': '${pending.length}',
+                        }),
                       ),
                     ),
                   );
@@ -130,4 +146,46 @@ class AppDrawer extends ConsumerWidget {
       ),
     );
   }
+
+}
+
+void _showLanguagePicker(BuildContext context) {
+  final p = context.palette;
+  showModalBottomSheet(
+      context: context,
+      backgroundColor: p.sheetBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(ConfigUI.radiusSheet),
+        ),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _langTile(ctx, const Locale('ko'), 'langKo'.tr()),
+            _langTile(ctx, const Locale('en'), 'langEn'.tr()),
+            _langTile(ctx, const Locale('ja'), 'langJa'.tr()),
+            _langTile(ctx, const Locale('zh', 'CN'), 'langZhCN'.tr()),
+            _langTile(ctx, const Locale('zh', 'TW'), 'langZhTW'.tr()),
+          ],
+        ),
+      ),
+    );
+}
+
+Widget _langTile(BuildContext context, Locale locale, String label) {
+    final p = context.palette;
+    final isSelected = context.locale == locale;
+    return ListTile(
+      leading: Icon(
+        isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+        color: isSelected ? p.accent : p.icon,
+      ),
+      title: Text(label, style: TextStyle(color: p.textOnSheet)),
+      onTap: () {
+      context.setLocale(locale);
+      Navigator.pop(context);
+    },
+  );
 }

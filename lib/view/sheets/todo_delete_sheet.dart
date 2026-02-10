@@ -2,6 +2,7 @@
 // [view/sheets/todo_delete_sheet.dart] - 삭제 옵션 BottomSheet
 // ============================================================================
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tagdo/theme/app_colors.dart';
@@ -32,7 +33,7 @@ class TodoDeleteSheet extends StatelessWidget {
           /// [이 항목 삭제] - 해당 Todo만 삭제
           _buildSheetButton(
             context: context,
-            label: "이 항목 삭제",
+            label: "deleteThisItem".tr(),
             textColor: p.textOnSheet,
             margin: const EdgeInsets.only(
               left: ConfigUI.sheetPaddingH,
@@ -48,7 +49,7 @@ class TodoDeleteSheet extends StatelessWidget {
           /// [완료 항목 삭제] - 완료된 Todo만 일괄 삭제
           _buildSheetButton(
             context: context,
-            label: "완료 항목 삭제",
+            label: "deleteCompleted".tr(),
             textColor: p.textOnSheet,
             margin: const EdgeInsets.symmetric(
               horizontal: ConfigUI.sheetPaddingH,
@@ -63,7 +64,7 @@ class TodoDeleteSheet extends StatelessWidget {
           /// [전체 삭제] - 모든 Todo 삭제 (빨간색 경고)
           _buildSheetButton(
             context: context,
-            label: "전체 삭제",
+            label: "deleteAll".tr(),
             textColor: p.accent,
             margin: const EdgeInsets.symmetric(
               horizontal: ConfigUI.sheetPaddingH,

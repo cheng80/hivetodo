@@ -1,6 +1,7 @@
 // edit_sheet_content_field.dart
 // TodoEditSheet content 입력 필드
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagdo/theme/app_colors.dart';
@@ -23,7 +24,7 @@ class EditSheetContentField extends ConsumerWidget {
     final isEmpty = ref.watch(isContentEmptyProvider);
 
     return EditFormField(
-      label: "content",
+      label: "content".tr(),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: ConfigUI.inputRadius,
@@ -46,7 +47,7 @@ class EditSheetContentField extends ConsumerWidget {
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
-            errorText: isEmpty ? '내용을 입력해주세요.' : null,
+            errorText: isEmpty ? 'contentRequired'.tr() : null,
             errorStyle: TextStyle(
               color: p.accent,
               fontSize: 12,

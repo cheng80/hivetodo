@@ -2,6 +2,7 @@
 // TodoEditSheet - Todo 생성/수정 BottomSheet
 // 내부 위젯은 todo_edit_sheet/ 폴더에 분리됨
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tagdo/model/todo.dart';
@@ -126,14 +127,14 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
       initialDate: initialDate,
       firstDate: today,
       lastDate: DateTime(now.year + 5),
-      helpText: "날짜 선택",
+      helpText: "dateSelect".tr(),
     );
     if (date == null || !mounted) return;
 
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(initialDate),
-      helpText: "시간 선택",
+      helpText: "timeSelect".tr(),
     );
     if (time == null || !mounted) return;
 

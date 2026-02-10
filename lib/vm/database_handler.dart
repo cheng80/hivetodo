@@ -45,16 +45,18 @@ class DatabaseHandler {
     return await queryTodosFiltered(tag: tag);
   }
 
-  /// [queryTodosFiltered] - tag/keyword/isCheck 조건으로 필터링하여 조회합니다.
+  /// [queryTodosFiltered] - tag/keyword/isCheck/hasDueDate 조건으로 필터링하여 조회합니다.
   ///
   /// [매개변수]
   /// - tag: null이면 태그 필터 미적용
   /// - keyword: null/빈값이면 검색 미적용
   /// - isCheck: null이면 전체, true이면 완료만, false이면 미완료만
+  /// - hasDueDate: null이면 전체, true이면 마감일 있는 것만
   Future<List<Todo>> queryTodosFiltered({
     int? tag,
     String? keyword,
     bool? isCheck,
+    bool? hasDueDate,
   }) async {
     final box = _getBox();
     Iterable<Todo> todos = box.values;
@@ -65,6 +67,10 @@ class DatabaseHandler {
 
     if (isCheck != null) {
       todos = todos.where((e) => e.isCheck == isCheck);
+    }
+
+    if (hasDueDate != null) {
+      todos = todos.where((e) => hasDueDate ? e.dueDate != null : e.dueDate == null);
     }
 
     final query = keyword?.trim().toLowerCase();

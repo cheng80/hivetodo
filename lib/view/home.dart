@@ -1,7 +1,7 @@
 // home.dart
 // 핵심 기능만 간단히 요약
 
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // HapticFeedback 사용을 위해 추가
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,11 +61,8 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
       if (next is AsyncError) {
         showCommonSnackBar(
           context,
-          message: '오류 발생: ${next.error}',
-          action: SnackBarAction(
-            label: '재시도',
-            onPressed: () => _reloadData(),
-          ),
+          message: '${'errorOccurred'.tr()}: ${next.error}',
+          action: SnackBarAction(label: 'retry'.tr(), onPressed: () => _reloadData()),
         );
       }
     });
@@ -77,10 +74,13 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
         TodoStatus.unchecked => false,
         TodoStatus.all => null,
       };
-      ref.read(todoListProvider.notifier).filterTodos(
+      ref
+          .read(todoListProvider.notifier)
+          .filterTodos(
             tag: next.tag,
             keyword: next.keyword,
             isCheck: isCheck,
+            hasDueDate: next.hasDueDate,
           );
     });
 
@@ -90,7 +90,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
         if (todos.isEmpty) {
           return Center(
             child: Text(
-              "할 일이 없습니다.\n상단의 + 버튼으로 추가해 보세요!",
+              'emptyTodoHint'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(color: p.textSecondary, fontSize: 16),
             ),
@@ -142,13 +142,10 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 16,
           children: [
-            Text(
-              '오류 발생: $error',
-              style: TextStyle(color: p.textPrimary),
-            ),
+            Text('${'errorOccurred'.tr()}: $error', style: TextStyle(color: p.textPrimary)),
             ElevatedButton(
               onPressed: () => _reloadData(),
-              child: const Text('재시도'),
+              child: Text('retry'.tr()),
             ),
           ],
         ),
@@ -185,6 +182,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
                 onPressed: _toggleSearchMode,
                 icon: Icon(Icons.search, color: p.icon, size: 28),
               ),
+
             /// [새로고침 버튼] - 수동으로 데이터를 새로고침합니다.
             IconButton(
               onPressed: () {
@@ -200,11 +198,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
                 HapticFeedback.mediumImpact();
                 _showEditSheet();
               },
-              icon: Icon(
-                Icons.add_box_outlined,
-                color: p.icon,
-                size: 32,
-              ),
+              icon: Icon(Icons.add_box_outlined, color: p.icon, size: 32),
             ),
           ],
         ),
@@ -214,7 +208,9 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
         /// ─────────────────────────────────────────────────
         body: Column(
           children: [
+            Divider(color: p.divider, height: 1),
             const HomeFilterRow(),
+            Divider(color: p.divider, height: 1),
             Expanded(child: todoListView),
           ],
         ),
@@ -270,7 +266,11 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
   /// ─────────────────────────────────────────────────
   /// [_showDeleteSheet] - 삭제 옵션 BottomSheet
   /// ─────────────────────────────────────────────────
-  void _showDeleteSheet(BuildContext context, Todo todo, TodoListNotifier todoNotifier) {
+  void _showDeleteSheet(
+    BuildContext context,
+    Todo todo,
+    TodoListNotifier todoNotifier,
+  ) {
     final p = context.palette;
 
     /// 하이라이트 ON
@@ -292,9 +292,9 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
         onDeleteChecked: () async {
           final confirmed = await showConfirmDialog(
             context,
-            title: '완료 항목 삭제',
-            message: '완료된 항목을 모두 삭제하시겠습니까?',
-            confirmLabel: '삭제',
+            title: 'deleteCompletedTitle'.tr(),
+            message: 'deleteCompletedMessage'.tr(),
+            confirmLabel: 'delete'.tr(),
             confirmColor: Colors.red,
           );
           if (!context.mounted) return;
@@ -305,9 +305,9 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
         onDeleteAll: () async {
           final confirmed = await showConfirmDialog(
             context,
-            title: '전체 삭제',
-            message: '정말 삭제하시겠습니까?',
-            confirmLabel: '삭제',
+            title: 'deleteAllTitle'.tr(),
+            message: 'deleteAllMessage'.tr(),
+            confirmLabel: 'delete'.tr(),
             confirmColor: Colors.red,
           );
           if (!context.mounted) return;

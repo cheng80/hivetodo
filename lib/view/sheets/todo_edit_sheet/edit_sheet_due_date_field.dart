@@ -1,7 +1,9 @@
 // edit_sheet_due_date_field.dart
 // TodoEditSheet 마감일 선택 필드 (DatePicker + TimePicker)
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagdo/theme/app_colors.dart';
@@ -24,7 +26,7 @@ class EditSheetDueDateField extends ConsumerWidget {
     final dueDate = ref.watch(editDueDateProvider);
 
     return EditFormField(
-      label: "마감일",
+      label: "dueDate".tr(),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: ConfigUI.inputRadius,
@@ -53,7 +55,7 @@ class EditSheetDueDateField extends ConsumerWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      dueDate != null ? _formatDueDate(dueDate) : "미설정",
+                      dueDate != null ? _formatDueDate(context, dueDate) : "notSet".tr(),
                       style: TextStyle(
                         color: dueDate != null
                             ? p.textOnSheet
@@ -86,11 +88,25 @@ class EditSheetDueDateField extends ConsumerWidget {
     );
   }
 
-  static String _formatDueDate(DateTime d) {
-    final period = d.hour < 12 ? "오전" : "오후";
-    final hour12 =
-        d.hour == 0 ? 12 : (d.hour > 12 ? d.hour - 12 : d.hour);
-    final min = d.minute.toString().padLeft(2, "0");
-    return "${d.year}년 ${d.month}월 ${d.day}일 $period $hour12:$min";
+  static String _formatDueDate(BuildContext context, DateTime d) {
+    final localeStr = _localeToString(context.locale);
+    final format = DateFormat.yMMMd(localeStr).add_jm();
+    return format.format(d);
+  }
+
+  static String _localeToString(Locale locale) {
+    if (locale.countryCode != null) {
+      final s = '${locale.languageCode}_${locale.countryCode}';
+      if (s == 'zh_CN' || s == 'zh_TW') return s;
+      if (locale.languageCode == 'ko') return 'ko_KR';
+      if (locale.languageCode == 'en') return 'en_US';
+      if (locale.languageCode == 'ja') return 'ja_JP';
+      return s;
+    }
+    return locale.languageCode == 'ko'
+        ? 'ko_KR'
+        : locale.languageCode == 'ja'
+            ? 'ja_JP'
+            : locale.languageCode;
   }
 }

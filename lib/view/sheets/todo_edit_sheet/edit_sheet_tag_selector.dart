@@ -1,6 +1,7 @@
 // edit_sheet_tag_selector.dart
 // TodoEditSheet 태그 선택 + 태그 관리 버튼
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -127,7 +128,7 @@ class EditSheetTagSelector extends ConsumerWidget {
                   children: [
                     Icon(Icons.settings, size: 18, color: p.iconOnSheet),
                     Text(
-                      "태그 관리",
+                      "tagManage".tr(),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: p.textOnSheet,

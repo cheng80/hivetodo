@@ -35,6 +35,16 @@ class SearchModeNotifier extends Notifier<bool> {
   void setMode(bool value) => state = value;
 }
 
+/// 마감일 필터: null=전체, true=마감일 있는 것만
+class DueDateFilterNotifier extends Notifier<bool?> {
+  @override
+  bool? build() => null;
+
+  void setHasDueDate(bool? value) => state = value;
+
+  void toggle() => state = state == true ? null : true;
+}
+
 // 삭제 시트 표시 중인 Todo no (하이라이트 용)
 class HighlightedTodoNotifier extends Notifier<int?> {
   @override
@@ -60,21 +70,27 @@ final searchModeProvider =
     NotifierProvider.autoDispose<SearchModeNotifier, bool>(
   SearchModeNotifier.new,
 );
+final dueDateFilterProvider =
+    NotifierProvider.autoDispose<DueDateFilterNotifier, bool?>(
+  DueDateFilterNotifier.new,
+);
 final highlightedTodoProvider =
     NotifierProvider.autoDispose<HighlightedTodoNotifier, int?>(
   HighlightedTodoNotifier.new,
 );
 
-/// 태그/검색어/상태 결합 필터
+/// 태그/검색어/상태/마감일 유무 결합 필터
 class FilterState {
   final int? tag;
   final String keyword;
   final TodoStatus status;
+  final bool? hasDueDate;
 
   const FilterState({
     required this.tag,
     required this.keyword,
     required this.status,
+    this.hasDueDate,
   });
 }
 
@@ -82,5 +98,11 @@ final filterStateProvider = Provider<FilterState>((ref) {
   final tag = ref.watch(selectedTagProvider);
   final keyword = ref.watch(searchQueryProvider).trim();
   final status = ref.watch(todoStatusProvider);
-  return FilterState(tag: tag, keyword: keyword, status: status);
+  final hasDueDate = ref.watch(dueDateFilterProvider);
+  return FilterState(
+    tag: tag,
+    keyword: keyword,
+    status: status,
+    hasDueDate: hasDueDate,
+  );
 });

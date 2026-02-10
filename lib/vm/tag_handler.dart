@@ -4,19 +4,30 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tagdo/model/tag.dart';
-/// 기본 태그 (이름, 색상)
-const List<(String, Color)> _defaults = [
-  ('업무', Colors.red),
-  ('개인', Colors.amber),
-  ('공부', Colors.purpleAccent),
-  ('취미', Colors.lightBlue),
-  ('건강', Colors.blue),
-  ('쇼핑', Colors.deepOrange),
-  ('가족', Colors.pink),
-  ('금융', Colors.teal),
-  ('이동', Colors.indigoAccent),
-  ('기타', Colors.green),
+import 'package:tagdo/util/app_locale.dart';
+
+/// 기본 태그 색상 (이름은 locale별)
+const List<Color> _defaultColors = [
+  Colors.red,
+  Colors.amber,
+  Colors.purpleAccent,
+  Colors.lightBlue,
+  Colors.blue,
+  Colors.deepOrange,
+  Colors.pink,
+  Colors.teal,
+  Colors.indigoAccent,
+  Colors.green,
 ];
+
+/// locale별 기본 태그 이름 (ko, en, ja, zh_CN, zh_TW)
+const Map<String, List<String>> _tagNamesByLocale = {
+  'ko': ['업무', '개인', '공부', '취미', '건강', '쇼핑', '가족', '금융', '이동', '기타'],
+  'en': ['Work', 'Personal', 'Study', 'Hobby', 'Health', 'Shopping', 'Family', 'Finance', 'Travel', 'Others'],
+  'ja': ['仕事', '個人', '勉強', '趣味', '健康', 'ショッピング', '家族', '金融', '移動', 'その他'],
+  'zh_CN': ['工作', '个人', '学习', '爱好', '健康', '购物', '家庭', '理财', '出行', '其他'],
+  'zh_TW': ['工作', '個人', '學習', '嗜好', '健康', '購物', '家庭', '理財', '出行', '其他'],
+};
 
 /// TagHandler - Tag Box CRUD
 class TagHandler {
@@ -53,16 +64,27 @@ class TagHandler {
     return maxId + 1;
   }
 
-  /// Box 비어 있을 때 기본 태그 생성
+  /// Box 비어 있을 때 기본 태그 생성 (초기 locale 적용)
   Future<void> _initDefaults() async {
     final box = _getBox();
-    for (var i = 0; i < _defaults.length; i++) {
-      final (name, color) = _defaults[i];
+    final names = _getTagNamesForLocale(appLocaleForInit);
+    for (var i = 0; i < names.length && i < _defaultColors.length; i++) {
       await box.put(
         '$i',
-        Tag(id: i, name: name, colorValue: color.toARGB32()),
+        Tag(id: i, name: names[i], colorValue: _defaultColors[i].toARGB32()),
       );
     }
+  }
+
+  static List<String> _getTagNamesForLocale(Locale? locale) {
+    if (locale != null) {
+      final key = locale.countryCode != null
+          ? '${locale.languageCode}_${locale.countryCode}'
+          : locale.languageCode;
+      final names = _tagNamesByLocale[key];
+      if (names != null) return names;
+    }
+    return _tagNamesByLocale['ko']!;
   }
 
   /// id로 태그 조회 헬퍼

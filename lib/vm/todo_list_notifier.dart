@@ -92,14 +92,20 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
     ref.invalidateSelf();
   }
 
-  /// 태그/검색어/완료 상태로 필터링
-  Future<void> filterTodos({int? tag, String? keyword, bool? isCheck}) async {
+  /// 태그/검색어/완료 상태/마감일 유무로 필터링
+  Future<void> filterTodos({
+    int? tag,
+    String? keyword,
+    bool? isCheck,
+    bool? hasDueDate,
+  }) async {
     state = const AsyncLoading();
     final result = await AsyncValue.guard(() async {
       return await _dbHandler.queryTodosFiltered(
         tag: tag,
         keyword: keyword,
         isCheck: isCheck,
+        hasDueDate: hasDueDate,
       );
     });
     state = result;

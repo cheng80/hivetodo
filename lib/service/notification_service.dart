@@ -1,6 +1,7 @@
 // notification_service.dart
 // Todo 마감일(dueDate) 기반 로컬 알람 - 포그라운드/백그라운드 모두 지원
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -169,19 +170,16 @@ class NotificationService {
       builder: (ctx) => PopScope(
         canPop: false,
         child: AlertDialog(
-          title: const Text('알림 권한 필요'),
-          content: const Text(
-            '알람 기능을 사용하려면 알림 권한이 필요합니다.\n'
-            '설정에서 알림 권한을 허용해주세요.',
-          ),
+          title: Text('notificationPermission'.tr()),
+          content: Text('notificationPermissionMessage'.tr()),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('취소'),
+              child: Text('cancel'.tr()),
             ),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('설정으로 이동'),
+              child: Text('openSettings'.tr()),
             ),
           ],
         ),
@@ -248,8 +246,8 @@ class NotificationService {
 
       await _notifications.zonedSchedule(
         id: notificationId,
-        title: todo.content.isEmpty ? '할 일' : todo.content,
-        body: '마감 시간입니다.',
+        title: todo.content.isEmpty ? 'todoDefaultTitle'.tr() : todo.content,
+        body: 'dueTimeBody'.tr(),
         scheduledDate: scheduledDate,
         notificationDetails: details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,

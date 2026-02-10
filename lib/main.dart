@@ -1,7 +1,7 @@
 // main.dart
 // 핵심 기능만 간단히 요약
 
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
@@ -11,12 +11,28 @@ import 'package:tagdo/model/todo.dart';
 import 'package:tagdo/service/notification_service.dart';
 import 'package:tagdo/util/common_util.dart';
 import 'package:tagdo/view/home.dart';
+import 'package:tagdo/util/app_locale.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:tagdo/vm/theme_notifier.dart';
 import 'package:tagdo/vm/todo_list_notifier.dart';
+
+Future<void> _initDateFormats() async {
+  await Future.wait([
+    initializeDateFormatting('ko_KR'),
+    initializeDateFormatting('en_US'),
+    initializeDateFormatting('ja_JP'),
+    initializeDateFormatting('zh_CN'),
+    initializeDateFormatting('zh_TW'),
+  ]);
+}
 
 /// 앱의 메인 함수
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+
+  /// intl DateFormat locale 초기화 (날짜 포맷용)
+  await _initDateFormats();
 
   /// [Step 0] GetStorage 초기화 (테마 등 경량 설정 저장용)
   await GetStorage.init();
@@ -37,8 +53,21 @@ void main() async {
   await notificationService.initialize();
   await notificationService.requestPermission();
 
-  /// [Step 5] ProviderScope로 감싸서 Riverpod 상태관리를 활성화합니다.
-  runApp(const ProviderScope(child: MyApp()));
+  /// [Step 5] EasyLocalization + ProviderScope + MyApp
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [
+        Locale('ko'),
+        Locale('en'),
+        Locale('ja'),
+        Locale('zh', 'CN'),
+        Locale('zh', 'TW'),
+      ],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('ko'),
+      child: const ProviderScope(child: MyApp()),
+    ),
+  );
 }
 
 /// ============================================================================
@@ -97,9 +126,13 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   /// Hive Box dueDate Todo + 등록된 알람 목록 확인 (디버깅)
   void _checkAlarmStatus(List<Todo> todos) {
     final withDueDate = todos.where((t) => t.dueDate != null).toList();
-    debugPrint('[AlarmCheck] === Hive Box 마감일 있는 Todo ${withDueDate.length}개 ===');
+    debugPrint(
+      '[AlarmCheck] === Hive Box 마감일 있는 Todo ${withDueDate.length}개 ===',
+    );
     for (final t in withDueDate) {
-      debugPrint('[AlarmCheck]   no=${t.no}, content=${t.content}, dueDate=${t.dueDate}');
+      debugPrint(
+        '[AlarmCheck]   no=${t.no}, content=${t.content}, dueDate=${t.dueDate}',
+      );
     }
     _notificationService.checkPendingNotifications();
   }
@@ -130,11 +163,17 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    appLocaleForInit = context.locale;
+
     final themeMode = ref.watch(themeNotifierProvider);
 
     return MaterialApp(
       /// 디버그 배너 제거
       debugShowCheckedModeBanner: false,
+
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
 
       /// 테마 모드 (라이트/다크/시스템)
       themeMode: themeMode,

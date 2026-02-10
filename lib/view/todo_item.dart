@@ -2,7 +2,9 @@
 // [view/todo_item.dart] - Todo 아이템 위젯
 // ============================================================================
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagdo/model/tag.dart';
@@ -133,7 +135,7 @@ class TodoItem extends ConsumerWidget {
                           children: [
                             Text(
                               todo.content.isEmpty
-                                  ? "내용 없음"
+                                  ? "noContent".tr()
                                   : todo.content,
                               style: todo.content.isEmpty
                                   ? TextStyle(
@@ -155,7 +157,7 @@ class TodoItem extends ConsumerWidget {
                             ),
                             if (todo.dueDate != null)
                               Text(
-                                _formatDueDate(todo.dueDate!),
+                                _formatDueDate(context, todo.dueDate!),
                                 style: TextStyle(
                                   color: p.textMeta,
                                   fontSize: 12,
@@ -204,11 +206,25 @@ class TodoItem extends ConsumerWidget {
   }
 }
 
-/// 마감일 포맷 (예: 2025년 2월 11일 오후 3:30)
-String _formatDueDate(DateTime d) {
-  final period = d.hour < 12 ? "오전" : "오후";
-  final hour12 =
-      d.hour == 0 ? 12 : (d.hour > 12 ? d.hour - 12 : d.hour);
-  final min = d.minute.toString().padLeft(2, "0");
-  return "${d.year}년 ${d.month}월 ${d.day}일 $period $hour12:$min";
+/// 마감일 포맷 (locale별로 년월일·시간 적용)
+String _formatDueDate(BuildContext context, DateTime d) {
+  final localeStr = _localeToString(context.locale);
+  final format = DateFormat.yMMMd(localeStr).add_jm();
+  return format.format(d);
+}
+
+String _localeToString(Locale locale) {
+  if (locale.countryCode != null) {
+    final s = '${locale.languageCode}_${locale.countryCode}';
+    if (s == 'zh_CN' || s == 'zh_TW') return s;
+    if (locale.languageCode == 'ko') return 'ko_KR';
+    if (locale.languageCode == 'en') return 'en_US';
+    if (locale.languageCode == 'ja') return 'ja_JP';
+    return s;
+  }
+  return locale.languageCode == 'ko'
+      ? 'ko_KR'
+      : locale.languageCode == 'ja'
+          ? 'ja_JP'
+          : locale.languageCode;
 }
