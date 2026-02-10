@@ -92,6 +92,13 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
     ref.invalidateSelf();
   }
 
+  /// 더미 데이터 일괄 삽입 (개발/데모용)
+  Future<void> insertDummyTodos(List<Todo> todos) async {
+    for (final todo in todos) {
+      await insertTodo(todo);
+    }
+  }
+
   /// 태그/검색어/완료 상태/마감일 유무로 필터링
   Future<void> filterTodos({
     int? tag,

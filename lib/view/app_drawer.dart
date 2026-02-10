@@ -3,20 +3,31 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tagdo/model/todo.dart';
 import 'package:tagdo/service/notification_service.dart';
 import 'package:tagdo/theme/app_colors.dart';
 import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/view/sheets/todo_edit_sheet.dart';
 import 'package:tagdo/view/tag_settings.dart';
 import 'package:tagdo/vm/theme_notifier.dart';
 import 'package:tagdo/vm/todo_list_notifier.dart';
 
 /// AppDrawer - 설정 및 부가 기능을 위한 사이드 메뉴
-class AppDrawer extends ConsumerWidget {
+/// 세팅 헤더 길게 누르면 개발용 버튼(더미 데이터, 추가) 표시/숨김
+class AppDrawer extends ConsumerStatefulWidget {
   const AppDrawer({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends ConsumerState<AppDrawer> {
+  bool _showDevButtons = false;
+
+  @override
+  Widget build(BuildContext context) {
     final p = context.palette;
     final themeMode = ref.watch(themeNotifierProvider);
     final isDark =
@@ -30,26 +41,57 @@ class AppDrawer extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 헤더 (설정 아이콘 + 타이틀)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                ConfigUI.screenPaddingH, 24, ConfigUI.screenPaddingH, 16,
-              ),
-              child: Row(
-                spacing: 12,
-                children: [
-                  Icon(Icons.settings, color: p.icon, size: 28),
-                  Text(
-                    'settings'.tr(),
-                    style: TextStyle(
-                      color: p.textPrimary,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
+            /// 헤더 (설정 아이콘 + 타이틀) - 길게 누르면 개발용 버튼 토글
+            GestureDetector(
+              onLongPress: () {
+                HapticFeedback.mediumImpact();
+                setState(() => _showDevButtons = !_showDevButtons);
+              },
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  ConfigUI.screenPaddingH, 24, ConfigUI.screenPaddingH, 16,
+                ),
+                child: Row(
+                  spacing: 12,
+                  children: [
+                    Icon(Icons.settings, color: p.icon, size: 28),
+                    Text(
+                      'settings'.tr(),
+                      style: TextStyle(
+                        color: p.textPrimary,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
+            if (_showDevButtons) ...[
+              ListTile(
+                leading: Icon(Icons.data_object, color: p.icon),
+                title: Text(
+                  'dummyData'.tr(),
+                  style: TextStyle(color: p.textPrimary, fontSize: 16),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _insertDummyData(ref);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.add, color: p.icon),
+                title: Text(
+                  'add'.tr(),
+                  style: TextStyle(color: p.textPrimary, fontSize: 16),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _showAddSheet(context, ref);
+                },
+              ),
+              Divider(color: p.divider, height: 1),
+            ],
             Divider(color: p.divider, height: 1),
 
             /// 다크모드 스위치
@@ -147,6 +189,58 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 
+  /// 개발용: 더미 Todo 일괄 삽입
+  Future<void> _insertDummyData(WidgetRef ref) async {
+    final now = DateTime.now();
+    final baseNo = now.millisecondsSinceEpoch;
+    final items = [
+      ('회의 준비 자료 정리', 0, null),
+      ('이메일 답장하기', 0, now.add(const Duration(hours: 2))),
+      ('운동하기', 4, null),
+      ('영어 단어 10개 외우기', 2, null),
+      ('장보기', 5, now.add(const Duration(days: 1))),
+      ('책 읽기 30분', 3, null),
+      ('가족 저녁 약속', 6, now.add(const Duration(days: 2))),
+      ('용돈 기입장 작성', 7, null),
+      ('기차표 예약', 8, now.add(const Duration(days: 3))),
+      ('기타 잡무 처리', 9, null),
+    ];
+    final dummyTodos = <Todo>[];
+    for (var i = 0; i < items.length; i++) {
+      final (content, tag, dueDate) = items[i];
+      final todo = Todo.create(content, tag, dueDate: dueDate)
+          .copyWith(no: baseNo + i);
+      dummyTodos.add(todo);
+    }
+    dummyTodos.add(
+      Todo.create('완료된 할 일 샘플', 0).copyWith(no: baseNo + 10, isCheck: true),
+    );
+    await ref.read(todoListProvider.notifier).insertDummyTodos(dummyTodos);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${dummyTodos.length}개 추가됨')),
+      );
+    }
+  }
+
+  /// 개발용: Todo 추가 시트 표시
+  Future<void> _showAddSheet(BuildContext context, WidgetRef ref) async {
+    final p = context.palette;
+    final result = await showModalBottomSheet<Todo>(
+      context: context,
+      backgroundColor: p.sheetBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(ConfigUI.radiusSheet),
+        ),
+      ),
+      builder: (ctx) => TodoEditSheet(update: null),
+      isScrollControlled: true,
+    );
+    if (result != null && context.mounted) {
+      await ref.read(todoListProvider.notifier).insertTodo(result);
+    }
+  }
 }
 
 void _showLanguagePicker(BuildContext context) {
