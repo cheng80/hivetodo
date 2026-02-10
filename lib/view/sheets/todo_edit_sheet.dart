@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hive_sample/model/tag.dart';
 import 'package:flutter_hive_sample/model/todo.dart';
 import 'package:flutter_hive_sample/theme/app_colors.dart';
+import 'package:flutter_hive_sample/view/tag_settings.dart';
 import 'package:flutter_hive_sample/vm/edit_sheet_notifier.dart';
 import 'package:flutter_hive_sample/vm/tag_list_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -274,6 +275,47 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
                     ),
                   );
                 },
+              ),
+            ),
+
+            /// ─────────────────────────────────────────────────
+            /// [태그 관리 버튼] - 태그 설정 화면으로 이동 후 복귀
+            /// ─────────────────────────────────────────────────
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: GestureDetector(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute(builder: (_) => const TagSettings()),
+                    );
+                  },
+                  child: Container(
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: p.iconOnSheet, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 6,
+                      children: [
+                        Icon(Icons.settings, size: 18, color: p.iconOnSheet),
+                        Text(
+                          "태그 관리",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: p.textOnSheet,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

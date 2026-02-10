@@ -107,17 +107,12 @@ class HomeFilterRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-      child: Row(
-        spacing: 12,
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStatusChips(context, ref),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: _buildTagDropdown(context, ref),
-            ),
-          ),
+          _buildTagDropdown(context, ref),
         ],
       ),
     );
@@ -166,13 +161,13 @@ class HomeFilterRow extends ConsumerWidget {
           return [
             /// '전체' 항목
             const Align(
-              alignment: Alignment.centerRight,
+              alignment: Alignment.centerLeft,
               child: Text('전체'),
             ),
             /// 태그 항목 (색상 원 + 이름)
             ...tagNames.map(
               (tag) => Align(
-                alignment: Alignment.centerRight,
+                alignment: Alignment.centerLeft,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   spacing: 8,

@@ -80,9 +80,11 @@ class TagSettings extends ConsumerWidget {
 
   /// 태그 생성/수정 다이얼로그
   void _showTagEditor(BuildContext context, WidgetRef ref, {Tag? tag}) {
+    final p = context.palette;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: p.sheetBackground,
       builder: (_) => _TagEditorSheet(tag: tag),
     );
   }
@@ -93,12 +95,16 @@ class TagSettings extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('태그 삭제'),
-        content: Text('"${tag.name}" 태그를 삭제하시겠습니까?'),
+        backgroundColor: p.sheetBackground,
+        title: Text('태그 삭제', style: TextStyle(color: p.textOnSheet)),
+        content: Text(
+          '"${tag.name}" 태그를 삭제하시겠습니까?',
+          style: TextStyle(color: p.iconOnSheet),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('취소', style: TextStyle(color: p.textSecondary)),
+            child: Text('취소', style: TextStyle(color: p.iconOnSheet)),
           ),
           TextButton(
             onPressed: () {

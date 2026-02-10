@@ -4,7 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-part 'tag.g.dart';
+/// Hive TypeAdapter (수동 관리)
+part 'tag_adapter.dart';
 
 /// Hive에 저장할 Tag 데이터 모델
 /// typeId: 2 → Todo(1)와 구분

@@ -17,9 +17,10 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
     return await _dbHandler.queryTodos();
   }
 
-  /// 새 Todo 생성
+  /// 새 Todo 생성 (맨 아래에 배치)
   Future<void> insertTodo(Todo todo) async {
-    await _dbHandler.insertTodo(todo);
+    final order = _dbHandler.nextSortOrder();
+    await _dbHandler.insertTodo(todo.copyWith(sortOrder: order));
     ref.invalidateSelf();
   }
 
@@ -41,10 +42,32 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
     ref.invalidateSelf();
   }
 
+  /// 완료 항목 일괄 삭제
+  Future<void> deleteCheckedTodos() async {
+    await _dbHandler.deleteCheckedTodos();
+    ref.invalidateSelf();
+  }
+
   /// 전체 삭제
   Future<void> deleteAllTodos() async {
     await _dbHandler.deleteAllTodos();
     ref.invalidateSelf();
+  }
+
+  /// 드래그 앤 드롭 순서 변경
+  Future<void> reorder(int oldIndex, int newIndex) async {
+    final todos = state.value;
+    if (todos == null) return;
+
+    final list = [...todos];
+    final item = list.removeAt(oldIndex);
+    list.insert(newIndex, item);
+
+    /// UI 즉시 반영 (낙관적 업데이트)
+    state = AsyncData(list);
+
+    /// DB에 새 순서 저장
+    await _dbHandler.reorder(list);
   }
 
   /// 수동 새로고침

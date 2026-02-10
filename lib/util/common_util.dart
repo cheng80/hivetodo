@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hive_sample/theme/app_colors.dart';
 
 /// 최상위 ScaffoldMessenger에 접근하기 위한 글로벌 키.
 /// MaterialApp의 messengerKey에 연결하면, 여러 컨텍스트에서 스낵바를
@@ -163,16 +164,18 @@ Future<bool> showConfirmDialog(
   Color confirmColor = Colors.red,
   bool useRootNavigator = true,
 }) async {
+  final p = context.palette;
   final result = await showDialog<bool>(
     context: context,
     useRootNavigator: useRootNavigator,
     builder: (context) => AlertDialog(
-      title: Text(title),
-      content: Text(message),
+      backgroundColor: p.sheetBackground,
+      title: Text(title, style: TextStyle(color: p.textOnSheet)),
+      content: Text(message, style: TextStyle(color: p.iconOnSheet)),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: Text(cancelLabel),
+          child: Text(cancelLabel, style: TextStyle(color: p.iconOnSheet)),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),

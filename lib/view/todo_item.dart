@@ -11,15 +11,18 @@ import 'package:flutter_hive_sample/theme/app_colors.dart';
 import 'package:flutter_hive_sample/vm/todo_list_notifier.dart';
 import 'package:flutter_hive_sample/vm/tag_list_notifier.dart';
 import 'package:flutter_hive_sample/vm/tag_handler.dart';
+import 'package:flutter_hive_sample/vm/home_filter_notifier.dart';
 
 class TodoItem extends ConsumerWidget {
   final Todo todo;
+  final int index;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 
   const TodoItem({
     super.key,
     required this.todo,
+    required this.index,
     required this.onTap,
     required this.onLongPress,
   });
@@ -29,6 +32,10 @@ class TodoItem extends ConsumerWidget {
     final p = context.palette;
     final todoNotifier = ref.read(todoListProvider.notifier);
     final tags = ref.watch(tagListProvider).value ?? <Tag>[];
+
+    /// 삭제 시트 표시 중인 Todo 하이라이트
+    final highlightedNo = ref.watch(highlightedTodoProvider);
+    final isHighlighted = highlightedNo == todo.no;
 
     return GestureDetector(
       /// [탭] - 수정 시트 열기
@@ -42,9 +49,20 @@ class TodoItem extends ConsumerWidget {
         HapticFeedback.mediumImpact();
         onLongPress();
       },
-      child: Container(
-        margin: const EdgeInsets.only(left: 20, right: 20, top: 12, bottom: 22),
-        color: Colors.transparent,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        margin: const EdgeInsets.only(left: 20, right: 8, top: 12, bottom: 22),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+        decoration: BoxDecoration(
+          color: isHighlighted
+              ? p.textPrimary.withValues(alpha: 0.08)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: isHighlighted
+              ? Border.all(color: p.textPrimary.withValues(alpha: 0.2), width: 1.5)
+              : null,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -129,6 +147,19 @@ class TodoItem extends ConsumerWidget {
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+
+            /// [드래그 핸들] - 이 영역만 드래그로 순서 변경 가능
+            ReorderableDragStartListener(
+              index: index,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Icon(
+                  Icons.drag_handle,
+                  color: p.textSecondary,
+                  size: 24,
                 ),
               ),
             ),

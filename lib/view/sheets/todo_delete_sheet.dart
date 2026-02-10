@@ -8,11 +8,13 @@ import 'package:flutter_hive_sample/theme/app_colors.dart';
 
 class TodoDeleteSheet extends StatelessWidget {
   final VoidCallback onDeleteOne;
+  final VoidCallback onDeleteChecked;
   final VoidCallback onDeleteAll;
 
   const TodoDeleteSheet({
     super.key,
     required this.onDeleteOne,
+    required this.onDeleteChecked,
     required this.onDeleteAll,
   });
 
@@ -22,7 +24,7 @@ class TodoDeleteSheet extends StatelessWidget {
 
     return SizedBox(
       width: MediaQuery.of(context).size.width,
-      height: 112 + MediaQuery.of(context).padding.bottom,
+      height: 162 + MediaQuery.of(context).padding.bottom,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -39,6 +41,28 @@ class TodoDeleteSheet extends StatelessWidget {
               height: 50,
               child: Text(
                 "이 항목 삭제",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: p.textOnSheet,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+
+          /// [완료 항목 삭제] - 완료된 Todo만 일괄 삭제
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              onDeleteChecked();
+            },
+            child: Container(
+              margin: const EdgeInsets.only(left: 20, right: 20),
+              alignment: Alignment.centerLeft,
+              color: Colors.transparent,
+              height: 50,
+              child: Text(
+                "완료 항목 삭제",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: p.textOnSheet,

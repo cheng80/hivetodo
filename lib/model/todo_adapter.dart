@@ -1,27 +1,11 @@
-/// ============================================================================
-/// [model/todo.g.dart] - Hive TypeAdapter 자동 생성 파일
-/// ============================================================================
-/// build_runner에 의해 자동 생성됩니다.
-/// 명령어: flutter packages pub run build_runner build
-///
-/// [역할]
-/// Todo 객체를 Hive의 바이너리 형식으로 직렬화(write)하고,
-/// 바이너리 데이터를 다시 Todo 객체로 역직렬화(read)합니다.
-///
-/// [주의] 이 파일을 수동으로 수정하면 안 됩니다!
-/// ============================================================================
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
+// todo_adapter.dart
+// Todo Hive TypeAdapter (수동 관리)
 
 part of 'todo.dart';
 
-// **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
-
 /// TodoAdapter - Todo 객체의 직렬화/역직렬화 담당
+/// typeId: 1 → @HiveType(typeId: 1)과 동일
 class TodoAdapter extends TypeAdapter<Todo> {
-  /// typeId: 1 → @HiveType(typeId: 1)과 동일
   @override
   final int typeId = 1;
 
@@ -39,6 +23,7 @@ class TodoAdapter extends TypeAdapter<Todo> {
       isCheck: fields[3] as bool,
       createdAt: fields[4] as DateTime,
       updatedAt: fields[5] as DateTime,
+      sortOrder: fields[6] as int? ?? 0,
     );
   }
 
@@ -46,7 +31,7 @@ class TodoAdapter extends TypeAdapter<Todo> {
   @override
   void write(BinaryWriter writer, Todo obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.no)
       ..writeByte(1)
@@ -58,7 +43,9 @@ class TodoAdapter extends TypeAdapter<Todo> {
       ..writeByte(4)
       ..write(obj.createdAt)
       ..writeByte(5)
-      ..write(obj.updatedAt);
+      ..write(obj.updatedAt)
+      ..writeByte(6)
+      ..write(obj.sortOrder);
   }
 
   @override

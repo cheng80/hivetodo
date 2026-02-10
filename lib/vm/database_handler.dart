@@ -72,9 +72,13 @@ class DatabaseHandler {
       todos = todos.where((e) => e.content.toLowerCase().contains(query));
     }
 
-    /// 수정일 내림차순 정렬 (최신 순)
+    /// 정렬: sortOrder 오름차순 → 같으면 수정일 내림차순
     final list = todos.toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      ..sort((a, b) {
+        final orderCmp = a.sortOrder.compareTo(b.sortOrder);
+        if (orderCmp != 0) return orderCmp;
+        return b.updatedAt.compareTo(a.updatedAt);
+      });
 
     return list;
   }
@@ -129,6 +133,17 @@ class DatabaseHandler {
     print("[DatabaseHandler] deleteTodo: no=$no");
   }
 
+  /// [deleteCheckedTodos] - 완료된(isCheck == true) Todo만 삭제합니다.
+  Future<void> deleteCheckedTodos() async {
+    final box = _getBox();
+    final checkedKeys = box.keys.where((key) {
+      final todo = box.get(key);
+      return todo != null && todo.isCheck;
+    }).toList();
+    await box.deleteAll(checkedKeys);
+    print("[DatabaseHandler] deleteCheckedTodos: ${checkedKeys.length}건 삭제");
+  }
+
   /// [deleteAllTodos] - 모든 Todo를 삭제합니다.
   ///
   /// Hive Box의 clear()를 호출하여 모든 데이터를 제거합니다.
@@ -136,5 +151,27 @@ class DatabaseHandler {
     final box = _getBox();
     await box.clear();
     print("[DatabaseHandler] deleteAllTodos: Box cleared");
+  }
+
+  /// [reorder] - 드래그 앤 드롭으로 순서 변경
+  ///
+  /// 현재 화면에 보이는 리스트의 순서를 sortOrder에 반영합니다.
+  /// [todos] 새로운 순서가 반영된 전체 리스트
+  Future<void> reorder(List<Todo> todos) async {
+    final box = _getBox();
+    for (var i = 0; i < todos.length; i++) {
+      final updated = todos[i].copyWith(sortOrder: i);
+      await box.put("${updated.no}", updated);
+    }
+  }
+
+  /// [nextSortOrder] - 새 Todo 생성 시 맨 아래에 배치할 sortOrder 반환
+  int nextSortOrder() {
+    final box = _getBox();
+    if (box.isEmpty) return 0;
+    final maxOrder = box.values.map((t) => t.sortOrder).reduce(
+      (a, b) => a > b ? a : b,
+    );
+    return maxOrder + 1;
   }
 }

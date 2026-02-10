@@ -95,12 +95,32 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
             ),
           );
         }
-        return ListView.builder(
+        return ReorderableListView.builder(
           itemCount: todos.length,
+          onReorder: (oldIndex, newIndex) {
+            /// ReorderableListView는 아래로 이동 시 newIndex가 +1 됨
+            if (newIndex > oldIndex) newIndex--;
+            HapticFeedback.mediumImpact();
+            ref.read(todoListProvider.notifier).reorder(oldIndex, newIndex);
+          },
+          proxyDecorator: (child, index, animation) {
+            /// 드래그 중인 아이템에 그림자 효과
+            return AnimatedBuilder(
+              animation: animation,
+              builder: (context, child) => Material(
+                elevation: 4,
+                color: Colors.transparent,
+                child: child,
+              ),
+              child: child,
+            );
+          },
           itemBuilder: (context, index) {
             final todo = todos[index];
             return TodoItem(
+              key: ValueKey(todo.no),
               todo: todo,
+              index: index,
               onTap: () => _showEditSheet(todo: todo),
               onLongPress: () => _showDeleteSheet(
                 context,
@@ -149,6 +169,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
         /// ─────────────────────────────────────────────────
         appBar: AppBar(
           backgroundColor: p.background,
+          scrolledUnderElevation: 0,
           iconTheme: IconThemeData(color: p.icon),
           title: ref.watch(searchModeProvider)
               ? HomeSearchField(
@@ -218,8 +239,10 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
   /// [_showEditSheet] - Todo 생성/수정 BottomSheet
   /// ─────────────────────────────────────────────────
   Future<void> _showEditSheet({Todo? todo}) async {
+    final p = context.palette;
     final result = await showModalBottomSheet<Todo>(
       context: context,
+      backgroundColor: p.sheetBackground,
       builder: (context) => TodoEditSheet(update: todo),
       isScrollControlled: true,
     );
@@ -242,11 +265,30 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
   /// [_showDeleteSheet] - 삭제 옵션 BottomSheet
   /// ─────────────────────────────────────────────────
   void _showDeleteSheet(BuildContext context, Todo todo, TodoListNotifier todoNotifier) {
+    final p = context.palette;
+
+    /// 하이라이트 ON
+    ref.read(highlightedTodoProvider.notifier).highlight(todo.no);
+
     showModalBottomSheet(
       context: context,
+      backgroundColor: p.sheetBackground,
       builder: (context) => TodoDeleteSheet(
         onDeleteOne: () {
           todoNotifier.deleteTodo(todo.no);
+          Navigator.of(context).pop();
+        },
+        onDeleteChecked: () async {
+          final confirmed = await showConfirmDialog(
+            context,
+            title: '완료 항목 삭제',
+            message: '완료된 항목을 모두 삭제하시겠습니까?',
+            confirmLabel: '삭제',
+            confirmColor: Colors.red,
+          );
+          if (!context.mounted) return;
+          if (!confirmed) return;
+          todoNotifier.deleteCheckedTodos();
           Navigator.of(context).pop();
         },
         onDeleteAll: () async {
@@ -257,17 +299,16 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
             confirmLabel: '삭제',
             confirmColor: Colors.red,
           );
-          if (!context.mounted) {
-            return;
-          }
-          if (!confirmed) {
-            return;
-          }
+          if (!context.mounted) return;
+          if (!confirmed) return;
           todoNotifier.deleteAllTodos();
           Navigator.of(context).pop();
         },
       ),
-    );
+    ).whenComplete(() {
+      /// 시트 닫힘 → 하이라이트 OFF
+      ref.read(highlightedTodoProvider.notifier).highlight(null);
+    });
   }
 
   /// [_reloadData] - 수동 새로고침

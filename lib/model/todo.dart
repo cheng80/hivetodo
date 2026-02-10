@@ -4,9 +4,8 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-/// build_runner가 자동 생성할 TypeAdapter 파일을 연결합니다.
-/// 명령어: flutter packages pub run build_runner build
-part 'todo.g.dart';
+/// Hive TypeAdapter (수동 관리)
+part 'todo_adapter.dart';
 
 /// Hive에 저장할 수 있는 Todo 데이터 모델
 /// typeId: 1 → Hive 내부에서 이 타입을 구분하기 위한 고유 식별자
@@ -33,9 +32,13 @@ class Todo {
   @HiveField(4)
   final DateTime createdAt;
 
-  /// [필드 5] 수정 일시 - 정렬 기준으로 사용 (최신 수정 순)
+  /// [필드 5] 수정 일시
   @HiveField(5)
   final DateTime updatedAt;
+
+  /// [필드 6] 사용자 지정 정렬 순서 (작을수록 위에 표시)
+  @HiveField(6, defaultValue: 0)
+  final int sortOrder;
 
   /// 기본 생성자
   const Todo({
@@ -45,15 +48,15 @@ class Todo {
     required this.isCheck,
     required this.createdAt,
     required this.updatedAt,
+    this.sortOrder = 0,
   });
 
   /// [팩토리 생성자] Todo.create - 새로운 Todo 생성
   /// - no: 밀리초 타임스탬프로 유니크 ID 자동 생성
   /// - isCheck: 항상 false (미완료 상태)
   /// - createdAt, updatedAt: 현재 시간으로 동일하게 설정
-  factory Todo.create(String content, int current) {
+  factory Todo.create(String content, int current, {int sortOrder = 0}) {
     /// DateTime.now()를 한 번만 호출하여 createdAt과 updatedAt에 동일한 값을 할당합니다.
-    /// 각각 따로 호출하면 마이크로초 단위 차이가 생겨 "수정됨"으로 오인됩니다.
     final now = DateTime.now();
     return Todo(
       no: now.millisecondsSinceEpoch,
@@ -62,6 +65,7 @@ class Todo {
       isCheck: false,
       createdAt: now,
       updatedAt: now,
+      sortOrder: sortOrder,
     );
   }
 
@@ -73,6 +77,7 @@ class Todo {
     final bool? isCheck,
     final DateTime? createdAt,
     final DateTime? updatedAt,
+    final int? sortOrder,
   }) {
     return Todo(
       no: no ?? this.no,
@@ -81,11 +86,12 @@ class Todo {
       isCheck: isCheck ?? this.isCheck,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      sortOrder: sortOrder ?? this.sortOrder,
     );
   }
 
   /// 디버깅용 toString
   @override
   String toString() =>
-      "Todo(no: $no, content: $content, tag: $tag, isCheck: $isCheck, createdAt: $createdAt, updatedAt: $updatedAt)";
+      "Todo(no: $no, content: $content, tag: $tag, isCheck: $isCheck, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt)";
 }

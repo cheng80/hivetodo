@@ -1,10 +1,15 @@
-/// Tag Hive TypeAdapter
+// tag_adapter.dart
+// Tag Hive TypeAdapter (수동 관리)
+
 part of 'tag.dart';
 
+/// TagAdapter - Tag 객체의 직렬화/역직렬화 담당
+/// typeId: 2 → @HiveType(typeId: 2)과 동일
 class TagAdapter extends TypeAdapter<Tag> {
   @override
   final int typeId = 2;
 
+  /// 바이너리 → Tag 객체 (역직렬화)
   @override
   Tag read(BinaryReader reader) {
     final numOfFields = reader.readByte();
@@ -18,6 +23,7 @@ class TagAdapter extends TypeAdapter<Tag> {
     );
   }
 
+  /// Tag 객체 → 바이너리 (직렬화)
   @override
   void write(BinaryWriter writer, Tag obj) {
     writer

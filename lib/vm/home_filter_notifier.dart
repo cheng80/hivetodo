@@ -35,6 +35,14 @@ class SearchModeNotifier extends Notifier<bool> {
   void setMode(bool value) => state = value;
 }
 
+// 삭제 시트 표시 중인 Todo no (하이라이트 용)
+class HighlightedTodoNotifier extends Notifier<int?> {
+  @override
+  int? build() => null;
+
+  void highlight(int? no) => state = no;
+}
+
 // 화면 종료 시 자동 해제
 final selectedTagProvider =
     NotifierProvider.autoDispose<SelectedTagNotifier, int?>(
@@ -51,6 +59,10 @@ final searchQueryProvider =
 final searchModeProvider =
     NotifierProvider.autoDispose<SearchModeNotifier, bool>(
   SearchModeNotifier.new,
+);
+final highlightedTodoProvider =
+    NotifierProvider.autoDispose<HighlightedTodoNotifier, int?>(
+  HighlightedTodoNotifier.new,
 );
 
 /// 태그/검색어/상태 결합 필터

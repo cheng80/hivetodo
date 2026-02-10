@@ -15,7 +15,8 @@ class AppDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final themeMode = ref.watch(themeNotifierProvider);
-    final isDark = themeMode == ThemeMode.dark ||
+    final isDark =
+        themeMode == ThemeMode.dark ||
         (themeMode == ThemeMode.system &&
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
@@ -45,23 +46,6 @@ class AppDrawer extends ConsumerWidget {
             ),
             Divider(color: p.divider, height: 1),
 
-            /// 태그 관리 버튼
-            ListTile(
-              leading: Icon(Icons.label_outline, color: p.icon),
-              title: Text(
-                '태그 관리',
-                style: TextStyle(color: p.textPrimary, fontSize: 16),
-              ),
-              trailing: Icon(Icons.chevron_right, color: p.textSecondary),
-              onTap: () {
-                Navigator.pop(context); // Drawer 닫기
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const TagSettings()),
-                );
-              },
-            ),
-
             /// 다크모드 스위치
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
@@ -84,6 +68,25 @@ class AppDrawer extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
+
+            Divider(color: p.divider, height: 1),
+
+            /// 태그 관리 버튼
+            ListTile(
+              leading: Icon(Icons.label_outline, color: p.icon),
+              title: Text(
+                '태그 관리',
+                style: TextStyle(color: p.textPrimary, fontSize: 16),
+              ),
+              trailing: Icon(Icons.chevron_right, color: p.textSecondary),
+              onTap: () {
+                Navigator.pop(context); // Drawer 닫기
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TagSettings()),
+                );
+              },
             ),
           ],
         ),
