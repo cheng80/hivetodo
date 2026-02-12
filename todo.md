@@ -89,12 +89,11 @@
   - `flutter_launcher_icons`, `flutter_native_splash` 설정
   - `FlutterNativeSplash.preserve()` / `remove()` 패턴 적용
 
-- [ ] **스토어 평점/리뷰 팝업**
-  - 패키지: `in_app_review: ^2.0.11`
-  - `requestReview()`: 앱 내 네이티브 인앱 리뷰 (플랫폼 횟수 제한 있음)
-  - `openStoreListing()`: 스토어 리뷰 화면으로 이동 (횟수 제한 없음)
-  - 권장: `requestReview()`는 할 일 완료 후 등 적절한 시점에 호출, `openStoreListing()`는 Drawer/설정의 "평점 남기기" 버튼에 사용
-  - iOS: `openStoreListing(appStoreId: '앱스토어ID')` 필요
+## 출시 준비
+
+→ **[docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md)** 참고 (다른 앱에서도 재사용 가능)
+
+- TagDo 전용: Bundle ID `com.cheng80.tagdo`, applicationId `com.cheng80.tagdo`, 카테고리 생산성
 
 ## 버그 수정 / 개선
 
