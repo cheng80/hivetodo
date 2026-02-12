@@ -2,6 +2,25 @@
 
 ## 기능 추가
 
+- [ ] **튜토리얼 / 온보딩 (showcaseview ^5.0.1)**
+  - [ ] 1단계: GetStorage에 `tutorial_completed` 플래그 추가
+    - `AppStorage` 또는 별도 키로 영속화
+    - 앱 최초 실행 시 `false`, 튜토리얼 완료/스킵 시 `true`
+  - [ ] 2단계: Home 화면에 ShowcaseView 래핑
+    - `ShowCaseWidget`로 `MaterialApp` 또는 Home 감싸기
+    - `GlobalKey`를 각 대상 위젯에 부여
+  - [ ] 3단계: 스포트라이트 대상 정의 및 순서
+    - 1) 햄버거 메뉴 (Drawer) → 태그 관리, 언어, 테마
+    - 2) 검색 버튼 → 할 일 검색
+    - 3) + 버튼 → 새 할 일 추가
+    - 4) 필터 칩 (전체/미완료/완료) → 목록 필터
+    - 5) 할 일 항목 예시 → 체크박스, 태그, 드래그 핸들, 마감일
+  - [ ] 4단계: 다국어 문자열 추가
+    - `assets/translations/*.json`에 튜토리얼 텍스트 (tutorial_skip, tutorial_next, tutorial_step_1~5)
+  - [ ] 5단계: "튜토리얼 다시 보기" 메뉴
+    - Drawer 설정 또는 세팅 화면에 추가
+    - `tutorial_completed` 플래그 초기화 후 ShowcaseView 재시작
+
 - [x] **색상 태그별 필터링 기능**
   - `DatabaseHandler`에 `queryTodosByTag(int tag)` 메서드 추가
   - `VMHandler`에 `filterByTag(int? tag)` 메서드 추가
