@@ -4,6 +4,16 @@
 
 ---
 
+## TagDo 전용
+
+| 항목 | 값 |
+|------|-----|
+| Bundle ID (iOS) | `com.cheng80.tagdo` |
+| applicationId (Android) | `com.cheng80.tagdo` |
+| 카테고리 | 생산성 (Productivity) |
+
+---
+
 ## 앱 스토어 (iOS)
 
 - [ ] **Apple Developer Program 가입**
@@ -67,13 +77,23 @@
 
 ## 공통 (앱 코드)
 
-- [ ] **스토어 평점/리뷰 팝업**
+- [x] **스토어 평점/리뷰 팝업** (구현 완료)
   - 패키지: `in_app_review: ^2.0.11`
-  - **구현 전 참고**: `docs/IN_APP_REVIEW_GUIDE.md`
-  - `requestReview()`: 적절한 시점에 자동 호출 (버튼 사용 금지)
-  - `openStoreListing()`: Drawer/설정 "평점 남기기" 버튼
-  - iOS: `appStoreId` (App Store Connect > Apple ID)
+  - `InAppReviewService`: `requestReview()` 자동 호출 (5개 완료 또는 3일 경과)
+  - Drawer "평점 남기기" → `openStoreListing()` (appStoreId 미설정 시 스낵바)
+  - **출시 전 필수**: `lib/service/in_app_review_service.dart` → `appStoreId` 입력
+    - App Store Connect > General > App Information > Apple ID (숫자)
+
+- [ ] **스크린샷·문서**
+  - `docs/screensshots/` 대표 이미지 (README 연동)
+  - `docs/erd/`, `docs/system/` 다이어그램
 
 - [ ] **릴리즈 빌드 점검**
   - `flutter build ios --release` / `flutter build appbundle --release`
   - 프로덕션 설정 확인 (API 키, 디버그 로그 제거 등)
+
+---
+
+## 참고 문서
+
+- `docs/IN_APP_REVIEW_GUIDE.md` — 인앱 리뷰 테스트·가이드라인

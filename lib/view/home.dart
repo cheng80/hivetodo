@@ -5,9 +5,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // HapticFeedback 사용을 위해 추가
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:tagdo/model/todo.dart'; // Todo 데이터 모델
 import 'package:tagdo/theme/app_colors.dart';
 import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/util/app_storage.dart';
 import 'package:tagdo/util/common_util.dart';
 import 'package:tagdo/view/todo_item.dart';
 import 'package:tagdo/view/sheets/todo_delete_sheet.dart';
@@ -30,6 +32,14 @@ class TodoHome extends ConsumerStatefulWidget {
 
 class _TodoHomeState extends ConsumerState<TodoHome> {
   late final TextEditingController _searchController;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _drawerKey = GlobalKey();
+  final _tagManageKey = GlobalKey();
+  final _searchKey = GlobalKey();
+  final _addKey = GlobalKey();
+  final _filterKey = GlobalKey();
+  final _firstTodoKey = GlobalKey();
+  bool _tutorialInitialized = false;
 
   @override
   void initState() {
@@ -39,10 +49,87 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_tutorialInitialized) {
+      _tutorialInitialized = true;
+      _initTutorial(context);
+    }
+  }
+
+  @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    try {
+      ShowcaseView.get().unregister();
+    } catch (_) {}
     super.dispose();
+  }
+
+  void _initTutorial(BuildContext context) {
+    final p = context.palette;
+    final scaffoldKey = _scaffoldKey;
+    ShowcaseView.register(
+      enableShowcase: !AppStorage.getTutorialCompleted(),
+      onDismiss: (_) => AppStorage.setTutorialCompleted(),
+      onFinish: () => AppStorage.setTutorialCompleted(),
+      onComplete: (index, key) {
+        /// 태그 관리(1번) → 검색(2번) 전환 시 Drawer 닫기
+        if (index == 1) scaffoldKey.currentState?.closeDrawer();
+      },
+      globalTooltipActionConfig: TooltipActionConfig(
+        alignment: MainAxisAlignment.spaceBetween,
+        actionGap: 12,
+        position: TooltipActionPosition.inside,
+        gapBetweenContentAndAction: 16,
+      ),
+      globalTooltipActions: [
+        TooltipActionButton(
+          type: TooltipDefaultActionType.skip,
+          name: 'tutorial_skip'.tr(),
+          onTap: () => ShowcaseView.get().dismiss(),
+          backgroundColor: p.chipUnselectedBg,
+          textStyle: TextStyle(color: p.chipUnselectedText, fontSize: 14),
+          borderRadius: ConfigUI.chipRadius,
+        ),
+        TooltipActionButton(
+          type: TooltipDefaultActionType.next,
+          name: 'tutorial_next'.tr(),
+          backgroundColor: p.chipSelectedBg,
+          textStyle: TextStyle(color: p.chipSelectedText, fontSize: 14),
+          borderRadius: ConfigUI.chipRadius,
+        ),
+      ],
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 튜토리얼용 할 일 생성 (시스템 언어에 맞게 context.tr() 사용)
+      if (!AppStorage.getTutorialTodoCreated() &&
+          AppStorage.getFirstLaunchDate() != null) {
+        final todos = await ref.read(todoListProvider.future);
+        if (todos.isEmpty && mounted) {
+          final content = 'tutorialTodoContent'.tr();
+          await ref.read(todoListProvider.notifier).createTutorialTodoIfNeeded(content);
+        }
+      }
+      if (!AppStorage.getTutorialCompleted() && mounted) {
+        await Future.delayed(const Duration(milliseconds: 400));
+        if (!mounted) return;
+        final todos = await ref.read(todoListProvider.future);
+        final keys = [
+          _tagManageKey,
+          _drawerKey,
+          _searchKey,
+          _addKey,
+          _filterKey,
+          if (todos.isNotEmpty) _firstTodoKey,
+        ];
+        _scaffoldKey.currentState?.openDrawer();
+        await Future.delayed(const Duration(milliseconds: 350));
+        if (!mounted) return;
+        ShowcaseView.get().startShowCase(keys);
+      }
+    });
   }
 
   @override
@@ -118,7 +205,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
           },
           itemBuilder: (context, index) {
             final todo = todos[index];
-            return TodoItem(
+            final item = TodoItem(
               key: ValueKey(todo.no),
               todo: todo,
               index: index,
@@ -129,6 +216,20 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
                 ref.read(todoListProvider.notifier),
               ),
             );
+            if (index == 0) {
+              return KeyedSubtree(
+                key: ValueKey(todo.no),
+                child: Showcase(
+                  key: _firstTodoKey,
+                  description: 'tutorial_step_6'.tr(),
+                  tooltipBackgroundColor: p.sheetBackground,
+                  textColor: p.textOnSheet,
+                  tooltipBorderRadius: ConfigUI.cardRadius,
+                  child: item,
+                ),
+              );
+            }
+            return item;
           },
         );
       },
@@ -156,11 +257,15 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
       /// 빈 영역 탭 시 키보드 숨기기
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        key: _scaffoldKey,
         resizeToAvoidBottomInset: false,
         backgroundColor: p.background,
 
         /// [Drawer] - 설정 사이드 메뉴
-        drawer: const AppDrawer(),
+        drawer: AppDrawer(
+          onTutorialReplay: _restartTutorial,
+          tagManageShowcaseKey: _tagManageKey,
+        ),
 
         /// ─────────────────────────────────────────────────
         /// [AppBar] - 일반 앱바 (상단 고정)
@@ -169,6 +274,19 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
           backgroundColor: p.background,
           scrolledUnderElevation: 0,
           iconTheme: IconThemeData(color: p.icon),
+          leading: Showcase(
+            key: _drawerKey,
+            description: 'tutorial_step_2'.tr(),
+            tooltipBackgroundColor: p.sheetBackground,
+            textColor: p.textOnSheet,
+            tooltipBorderRadius: ConfigUI.cardRadius,
+            child: Builder(
+              builder: (ctx) => IconButton(
+                icon: Icon(Icons.menu, color: p.icon, size: 28),
+                onPressed: () => Scaffold.of(ctx).openDrawer(),
+              ),
+            ),
+          ),
           title: ref.watch(searchModeProvider)
               ? HomeSearchField(
                   controller: _searchController,
@@ -178,9 +296,16 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
           actions: [
             /// [검색 토글] - 검색 모드에서는 입력창에서 닫기 제공
             if (!ref.watch(searchModeProvider))
-              IconButton(
-                onPressed: _toggleSearchMode,
-                icon: Icon(Icons.search, color: p.icon, size: 28),
+              Showcase(
+                key: _searchKey,
+                description: 'tutorial_step_3'.tr(),
+                tooltipBackgroundColor: p.sheetBackground,
+                textColor: p.textOnSheet,
+                tooltipBorderRadius: ConfigUI.cardRadius,
+                child: IconButton(
+                  onPressed: _toggleSearchMode,
+                  icon: Icon(Icons.search, color: p.icon, size: 28),
+                ),
               ),
 
             /// [새로고침 버튼] - 수동으로 데이터를 새로고침합니다.
@@ -193,12 +318,19 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
             ),
 
             /// [Todo 추가 버튼] - 새 Todo 생성 화면으로 이동합니다.
-            IconButton(
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                _showEditSheet();
-              },
-              icon: Icon(Icons.add_box_outlined, color: p.icon, size: 32),
+            Showcase(
+              key: _addKey,
+              description: 'tutorial_step_4'.tr(),
+              tooltipBackgroundColor: p.sheetBackground,
+              textColor: p.textOnSheet,
+              tooltipBorderRadius: ConfigUI.cardRadius,
+              child: IconButton(
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  _showEditSheet();
+                },
+                icon: Icon(Icons.add_box_outlined, color: p.icon, size: 32),
+              ),
             ),
           ],
         ),
@@ -209,7 +341,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
         body: Column(
           children: [
             Divider(color: p.divider, height: 1),
-            const HomeFilterRow(),
+            HomeFilterRow(filterShowcaseKey: _filterKey),
             Divider(color: p.divider, height: 1),
             Expanded(child: todoListView),
           ],
@@ -325,5 +457,29 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
   /// [_reloadData] - 수동 새로고침
   void _reloadData() {
     ref.read(todoListProvider.notifier).reloadData();
+  }
+
+  /// [_restartTutorial] - Drawer "튜토리얼 다시 보기" 호출 시
+  void _restartTutorial() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (!mounted) return;
+      final todos = await ref.read(todoListProvider.future);
+      final keys = [
+        _tagManageKey,
+        _drawerKey,
+        _searchKey,
+        _addKey,
+        _filterKey,
+        if (todos.isNotEmpty) _firstTodoKey,
+      ];
+      _scaffoldKey.currentState?.openDrawer();
+      await Future.delayed(const Duration(milliseconds: 350));
+      if (!mounted) return;
+      final sv = ShowcaseView.get();
+      sv.enableShowcase = true;
+      sv.startShowCase(keys);
+    });
   }
 }

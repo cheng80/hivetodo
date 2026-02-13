@@ -20,5 +20,60 @@ class AppStorage {
   static Future<void> saveThemeMode(String mode) =>
       _storage.write(_keyTheme, mode);
 
+  // ─── 스토어 리뷰 (in_app_review) ─────────────────
+  static const String _keyFirstLaunchDate = 'first_launch_date';
+  static const String _keyTodoCompletedCount = 'todo_completed_count';
+  static const String _keyReviewRequested = 'review_requested';
+
+  /// 첫 실행일 (ISO8601 문자열). 없으면 null → 최초 1회 저장
+  static String? getFirstLaunchDate() =>
+      _storage.read<String>(_keyFirstLaunchDate);
+
+  /// 첫 실행일 저장 (앱 최초 실행 시 1회)
+  static Future<void> saveFirstLaunchDate(DateTime date) =>
+      _storage.write(_keyFirstLaunchDate, date.toIso8601String());
+
+  /// 완료한 할 일 누적 횟수
+  static int getTodoCompletedCount() =>
+      _storage.read<int>(_keyTodoCompletedCount) ?? 0;
+
+  /// 완료 횟수 증가
+  static Future<void> incrementTodoCompletedCount() async {
+    final n = getTodoCompletedCount() + 1;
+    await _storage.write(_keyTodoCompletedCount, n);
+  }
+
+  /// 리뷰 요청 이미 했는지
+  static bool getReviewRequested() =>
+      _storage.read<bool>(_keyReviewRequested) ?? false;
+
+  /// 리뷰 요청 완료 표시
+  static Future<void> setReviewRequested() =>
+      _storage.write(_keyReviewRequested, true);
+
+  // ─── 튜토리얼 (showcaseview) ─────────────────────
+  static const String _keyTutorialCompleted = 'tutorial_completed';
+
+  /// 튜토리얼 완료/스킵 여부 (앱 최초 실행 시 false)
+  static bool getTutorialCompleted() =>
+      _storage.read<bool>(_keyTutorialCompleted) ?? false;
+
+  /// 튜토리얼 완료 표시
+  static Future<void> setTutorialCompleted() =>
+      _storage.write(_keyTutorialCompleted, true);
+
+  /// 튜토리얼 다시 보기용 초기화
+  static Future<void> resetTutorialCompleted() =>
+      _storage.write(_keyTutorialCompleted, false);
+
+  /// 튜토리얼용 할 일 생성 여부 (앱 최초 실행 시 1회)
+  static const String _keyTutorialTodoCreated = 'tutorial_todo_created';
+
+  static bool getTutorialTodoCreated() =>
+      _storage.read<bool>(_keyTutorialTodoCreated) ?? false;
+
+  static Future<void> setTutorialTodoCreated() =>
+      _storage.write(_keyTutorialTodoCreated, true);
+
   // ─── 추후 설정 추가 시 여기에 ────────────────────
 }

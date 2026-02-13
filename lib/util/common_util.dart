@@ -18,21 +18,30 @@ OverlayEntry? _overlaySnackEntry;
 /// 공통 스낵바 표시 헬퍼.
 /// - rootMessengerKey가 연결되어 있으면 최상위 스캐폴드에 표시합니다.
 /// - 연결되지 않은 경우, 전달받은 context의 ScaffoldMessenger를 사용합니다.
+/// - textColor 미지정 시 배경 밝기에 따라 자동 선택 (다크 모드 대응)
 void showCommonSnackBar(
   BuildContext context, {
   required String message,
   Color backgroundColor = Colors.black,
+  Color? textColor,
   Duration duration = const Duration(seconds: 2),
   SnackBarAction? action,
   bool clearBeforeShow = false,
 }) {
+  final effectiveTextColor = textColor ??
+      (backgroundColor.computeLuminance() > 0.5
+          ? Colors.black87
+          : Colors.white);
   final messenger = rootMessengerKey.currentState ?? ScaffoldMessenger.of(context);
   if (clearBeforeShow) {
     messenger.clearSnackBars();
   }
   messenger.showSnackBar(
     SnackBar(
-      content: Text(message),
+      content: Text(
+        message,
+        style: TextStyle(color: effectiveTextColor),
+      ),
       backgroundColor: backgroundColor,
       duration: duration,
       action: action,

@@ -6,9 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagdo/model/todo.dart';
+import 'package:tagdo/service/in_app_review_service.dart';
 import 'package:tagdo/service/notification_service.dart';
 import 'package:tagdo/theme/app_colors.dart';
+import 'package:tagdo/util/app_storage.dart';
+import 'package:tagdo/util/common_util.dart';
 import 'package:tagdo/theme/config_ui.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:tagdo/view/sheets/todo_edit_sheet.dart';
 import 'package:tagdo/view/tag_settings.dart';
 import 'package:tagdo/vm/theme_notifier.dart';
@@ -17,7 +21,10 @@ import 'package:tagdo/vm/todo_list_notifier.dart';
 /// AppDrawer - 설정 및 부가 기능을 위한 사이드 메뉴
 /// 세팅 헤더 길게 누르면 개발용 버튼(더미 데이터, 추가) 표시/숨김
 class AppDrawer extends ConsumerStatefulWidget {
-  const AppDrawer({super.key});
+  final VoidCallback? onTutorialReplay;
+  final GlobalKey? tagManageShowcaseKey;
+
+  const AppDrawer({super.key, this.onTutorialReplay, this.tagManageShowcaseKey});
 
   @override
   ConsumerState<AppDrawer> createState() => _AppDrawerState();
@@ -25,6 +32,36 @@ class AppDrawer extends ConsumerStatefulWidget {
 
 class _AppDrawerState extends ConsumerState<AppDrawer> {
   bool _showDevButtons = false;
+
+  Widget _wrapTagManageTile(BuildContext context, AppColorScheme p) {
+    final tile = ListTile(
+      leading: Icon(Icons.label_outline, color: p.icon),
+      title: Text(
+        'tagManage'.tr(),
+        style: TextStyle(color: p.textPrimary, fontSize: 16),
+      ),
+      trailing: Icon(Icons.chevron_right, color: p.textSecondary),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const TagSettings()),
+        );
+      },
+    );
+    final key = widget.tagManageShowcaseKey;
+    if (key != null) {
+      return Showcase(
+        key: key,
+        description: 'tutorial_step_1'.tr(),
+        tooltipBackgroundColor: p.sheetBackground,
+        textColor: p.textOnSheet,
+        tooltipBorderRadius: ConfigUI.cardRadius,
+        child: tile,
+      );
+    }
+    return tile;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,20 +174,41 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
               },
             ),
 
-            /// 태그 관리 버튼
+            /// 평점 남기기
             ListTile(
-              leading: Icon(Icons.label_outline, color: p.icon),
+              leading: Icon(Icons.star_outline, color: p.icon),
               title: Text(
-                'tagManage'.tr(),
+                'rateApp'.tr(),
+                style: TextStyle(color: p.textPrimary, fontSize: 16),
+              ),
+              trailing: Icon(Icons.open_in_new, color: p.textSecondary, size: 20),
+              onTap: () async {
+                Navigator.pop(context);
+                final ok = await InAppReviewService().openStoreListing();
+                if (context.mounted && !ok) {
+                  showCommonSnackBar(
+                    context,
+                    message: '평점 기능은 앱 출시 후 이용 가능합니다.',
+                  );
+                }
+              },
+            ),
+
+            /// 태그 관리 버튼
+            _wrapTagManageTile(context, p),
+
+            /// 튜토리얼 다시 보기
+            ListTile(
+              leading: Icon(Icons.school_outlined, color: p.icon),
+              title: Text(
+                'tutorial_replay'.tr(),
                 style: TextStyle(color: p.textPrimary, fontSize: 16),
               ),
               trailing: Icon(Icons.chevron_right, color: p.textSecondary),
               onTap: () {
-                Navigator.pop(context); // Drawer 닫기
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const TagSettings()),
-                );
+                Navigator.pop(context);
+                AppStorage.resetTutorialCompleted();
+                widget.onTutorialReplay?.call();
               },
             ),
 

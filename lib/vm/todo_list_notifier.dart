@@ -3,7 +3,9 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagdo/model/todo.dart';
+import 'package:tagdo/service/in_app_review_service.dart';
 import 'package:tagdo/service/notification_service.dart';
+import 'package:tagdo/util/app_storage.dart';
 import 'package:tagdo/vm/database_handler.dart';
 
 /// TodoListNotifier - Riverpod AsyncNotifier 기반 ViewModel
@@ -13,10 +15,33 @@ import 'package:tagdo/vm/database_handler.dart';
 class TodoListNotifier extends AsyncNotifier<List<Todo>> {
   final DatabaseHandler _dbHandler = DatabaseHandler();
   final NotificationService _notificationService = NotificationService();
+  final InAppReviewService _reviewService = InAppReviewService();
 
   @override
   Future<List<Todo>> build() async {
     return await _dbHandler.queryTodos();
+  }
+
+  /// 앱 최초 설치 시: 튜토리얼용 할 일 1개 생성 (5분 후 알람)
+  /// [translatedContent]: 시스템 언어에 맞게 번역된 문자열 (Home에서 context.tr()로 전달)
+  Future<void> createTutorialTodoIfNeeded(String translatedContent) async {
+    if (AppStorage.getTutorialTodoCreated() ||
+        AppStorage.getFirstLaunchDate() == null) return;
+
+    final todos = state.value ?? await _dbHandler.queryTodos();
+    if (todos.isNotEmpty) return;
+
+    final firstLaunch = DateTime.tryParse(AppStorage.getFirstLaunchDate()!);
+    if (firstLaunch == null) return;
+
+    final dueDate = firstLaunch.add(const Duration(minutes: 5));
+    final tutorialTodo = Todo.create(translatedContent, 0, dueDate: dueDate);
+    final order = _dbHandler.nextSortOrder();
+    final inserted = tutorialTodo.copyWith(sortOrder: order);
+    await _dbHandler.insertTodo(inserted);
+    await _notificationService.scheduleNotification(inserted);
+    await AppStorage.setTutorialTodoCreated();
+    ref.invalidateSelf();
   }
 
   /// 새 Todo 생성 (맨 아래에 배치)
@@ -41,8 +66,15 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
 
   /// 완료 상태 토글
   Future<void> toggleCheck(Todo todo) async {
+    final wasIncomplete = !todo.isCheck;
     await _dbHandler.toggleCheck(todo);
     ref.invalidateSelf();
+
+    /// 완료로 전환 시: 완료 횟수 증가 + 조건 만족 시 인앱 리뷰 요청
+    if (wasIncomplete) {
+      await AppStorage.incrementTodoCompletedCount();
+      _reviewService.maybeRequestReview();
+    }
   }
 
   /// Todo 삭제

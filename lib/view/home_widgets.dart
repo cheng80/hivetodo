@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:tagdo/model/tag.dart';
 import 'package:tagdo/theme/app_colors.dart';
 import 'package:tagdo/theme/config_ui.dart';
@@ -107,10 +108,25 @@ class HomeSearchField extends ConsumerWidget {
 /// 필터 바 (태그 드롭다운 + 상태 칩)
 /// ─────────────────────────────────────────────────
 class HomeFilterRow extends ConsumerWidget {
-  const HomeFilterRow({super.key});
+  final GlobalKey? filterShowcaseKey;
+
+  const HomeFilterRow({super.key, this.filterShowcaseKey});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final chips = _buildStatusChips(context, ref);
+    final p = context.palette;
+    final chipsWidget = filterShowcaseKey != null
+        ? Showcase(
+            key: filterShowcaseKey!,
+            description: 'tutorial_step_5'.tr(),
+            tooltipBackgroundColor: p.sheetBackground,
+            textColor: p.textOnSheet,
+            tooltipBorderRadius: ConfigUI.cardRadius,
+            child: chips,
+          )
+        : chips;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         ConfigUI.screenPaddingH,
@@ -124,7 +140,7 @@ class HomeFilterRow extends ConsumerWidget {
           /// [전체][미완료][완료] 왼쪽 / [🔔] 오른쪽 정렬
           Row(
             children: [
-              _buildStatusChips(context, ref),
+              chipsWidget,
               const Spacer(),
               _buildDueDateFilterIcon(context, ref),
             ],

@@ -12,7 +12,9 @@ import 'package:tagdo/model/todo.dart';
 import 'package:tagdo/service/notification_service.dart';
 import 'package:tagdo/util/common_util.dart';
 import 'package:tagdo/view/home.dart';
+import 'package:tagdo/service/in_app_review_service.dart';
 import 'package:tagdo/util/app_locale.dart';
+import 'package:tagdo/util/app_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:tagdo/vm/theme_notifier.dart';
 import 'package:tagdo/vm/todo_list_notifier.dart';
@@ -40,6 +42,11 @@ void main() async {
 
   /// [Step 0] GetStorage 초기화 (테마 등 경량 설정 저장용)
   await GetStorage.init();
+
+  /// [Step 0-1] 첫 실행일 저장 (스토어 리뷰 조건용)
+  if (AppStorage.getFirstLaunchDate() == null) {
+    await AppStorage.saveFirstLaunchDate(DateTime.now());
+  }
 
   /// [Step 1] Hive를 Flutter 환경에 맞게 초기화합니다.
   await Hive.initFlutter();
