@@ -1,5 +1,8 @@
 // todo_list_notifier.dart
 // Todo 목록 Riverpod Notifier
+//
+// [로컬 알람] insertTodo, updateTodo, deleteTodo 시 scheduleNotification/cancelNotification 호출
+// [튜토리얼] createTutorialTodoIfNeeded: 앱 최초 설치 시 5분 후 알람 할 일 1개 생성
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagdo/model/todo.dart';
@@ -22,8 +25,10 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
     return await _dbHandler.queryTodos();
   }
 
-  /// 앱 최초 설치 시: 튜토리얼용 할 일 1개 생성 (5분 후 알람)
-  /// [translatedContent]: 시스템 언어에 맞게 번역된 문자열 (Home에서 context.tr()로 전달)
+  /// 앱 최초 설치 시: 튜토리얼용 할 일 1개 생성 (first_launch_date + 5분 알람)
+  ///
+  /// [translatedContent] Home에서 context.tr('tutorialTodoContent')로 전달 (시스템 언어 반영)
+  /// 호출: Home._initTutorial의 addPostFrameCallback
   Future<void> createTutorialTodoIfNeeded(String translatedContent) async {
     if (AppStorage.getTutorialTodoCreated() ||
         AppStorage.getFirstLaunchDate() == null) return;
@@ -45,6 +50,7 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
   }
 
   /// 새 Todo 생성 (맨 아래에 배치)
+  /// dueDate 있으면 로컬 알람 등록 (배지 숫자 자동 반영)
   Future<void> insertTodo(Todo todo) async {
     final order = _dbHandler.nextSortOrder();
     final inserted = todo.copyWith(sortOrder: order);
@@ -54,6 +60,7 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
   }
 
   /// Todo 수정
+  /// dueDate 제거 시 알람 취소, dueDate 있으면 알람 재등록
   Future<void> updateTodo(Todo todo) async {
     await _dbHandler.updateTodo(todo);
     if (todo.dueDate == null) {
@@ -78,6 +85,7 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
   }
 
   /// Todo 삭제
+  /// dueDate 있던 Todo면 알람 취소 + 배지 숫자 갱신
   Future<void> deleteTodo(int no) async {
     await _notificationService.cancelNotification(no);
     await _dbHandler.deleteTodo(no);
@@ -85,6 +93,7 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
   }
 
   /// 완료 항목 일괄 삭제
+  /// dueDate 있던 Todo 알람 취소
   Future<void> deleteCheckedTodos() async {
     final todos = state.value;
     if (todos != null) {
@@ -97,6 +106,7 @@ class TodoListNotifier extends AsyncNotifier<List<Todo>> {
   }
 
   /// 전체 삭제
+  /// 모든 알람 취소 + 배지 0으로 초기화
   Future<void> deleteAllTodos() async {
     await _notificationService.cancelAllNotifications();
     await _dbHandler.deleteAllTodos();

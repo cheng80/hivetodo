@@ -1,5 +1,8 @@
 // main.dart
-// 핵심 기능만 간단히 요약
+// 앱 진입점 - 초기화, 로컬 알람, 배지, 앱 생명주기
+//
+// [로컬 알람] main에서 초기화·권한 요청
+// [배지] 앱 시작/포그라운드 복귀 시 clearBadge() 호출
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +62,7 @@ void main() async {
   await Hive.openBox<Todo>("todo");
   await Hive.openBox<Tag>("tag");
 
-  /// [Step 4] 알람 서비스 초기화
+  /// [Step 4] 로컬 알람 서비스 초기화 및 권한 요청
   final notificationService = NotificationService();
   await notificationService.initialize();
   await notificationService.requestPermission();
@@ -119,15 +122,17 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     }
   }
 
+  /// 앱 시작 시: 배지 제거, 과거 알람 정리, 마감일 Todo 알람 재등록
   Future<void> _performInitialCleanup() async {
     try {
+      await _notificationService.clearBadge(); // 앱 진입 = 읽음 처리
       final todos = await ref.read(todoListProvider.future);
       final notifier = ref.read(todoListProvider.notifier);
       await _notificationService.cleanupExpiredNotifications(
         todos: todos,
         updateTodo: (todo) => notifier.updateTodo(todo),
       );
-      // 앱 시작 시 Hive Box의 마감일 Todo 알람 재등록 (DB 로드만으로는 알람 미등록됨)
+      // Hive Box의 마감일 Todo 알람 재등록 (DB만으로는 OS에 알람 미등록)
       for (final todo in todos) {
         if (todo.dueDate != null) {
           await _notificationService.scheduleNotification(todo);
@@ -159,8 +164,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     }
   }
 
+  /// 포그라운드 복귀 시: 배지 제거, 과거 알람 정리, 알람 재등록
   Future<void> _performCleanupOnResume() async {
     try {
+      await _notificationService.clearBadge();
       final todos = await ref.read(todoListProvider.future);
       final notifier = ref.read(todoListProvider.notifier);
       await _notificationService.cleanupExpiredNotifications(

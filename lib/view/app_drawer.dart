@@ -19,7 +19,10 @@ import 'package:tagdo/vm/theme_notifier.dart';
 import 'package:tagdo/vm/todo_list_notifier.dart';
 
 /// AppDrawer - 설정 및 부가 기능을 위한 사이드 메뉴
-/// 세팅 헤더 길게 누르면 개발용 버튼(더미 데이터, 추가) 표시/숨김
+///
+/// - 세팅 헤더 길게 누르면 개발용 버튼(더미 데이터, 추가) 표시/숨김
+/// - tagManageShowcaseKey: 튜토리얼 1단계(태그 관리) Showcase용
+/// - onTutorialReplay: Drawer "튜토리얼 다시 보기" 탭 시 콜백
 class AppDrawer extends ConsumerStatefulWidget {
   final VoidCallback? onTutorialReplay;
   final GlobalKey? tagManageShowcaseKey;
@@ -33,6 +36,7 @@ class AppDrawer extends ConsumerStatefulWidget {
 class _AppDrawerState extends ConsumerState<AppDrawer> {
   bool _showDevButtons = false;
 
+  /// 태그 관리 ListTile - tagManageShowcaseKey 있으면 Showcase로 감싸서 튜토리얼 1단계 대상
   Widget _wrapTagManageTile(BuildContext context, AppColorScheme p) {
     final tile = ListTile(
       leading: Icon(Icons.label_outline, color: p.icon),

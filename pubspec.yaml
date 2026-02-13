@@ -53,11 +53,14 @@ dependencies:
   hive_flutter: ^1.1.0
 
   # 로컬 알람 등록시 필요
-  flutter_local_notifications: ^20.0.0
+  flutter_local_notifications: ^20.1.0
   timezone: ^0.10.0
 
   # 권한 관리
   permission_handler: ^12.0.1
+
+  # 앱 아이콘 배지 (예약 알람 개수 표시)
+  app_badge_plus: ^1.2.6
 
   # 앱 시작 화면 설정
   flutter_native_splash: ^2.4.7

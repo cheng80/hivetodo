@@ -1,13 +1,19 @@
 // notification_service.dart
 // Todo 마감일(dueDate) 기반 로컬 알람 - 포그라운드/백그라운드 모두 지원
+//
+// [기능]
+// - 로컬 알람: flutter_local_notifications로 마감일 알림 예약
+// - 앱 아이콘 배지: 예약된 알람 개수 표시 (app_badge_plus)
+// - 앱 진입 시 배지 제거 (읽음 처리)
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tagdo/model/todo.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 /// 로컬 알람 서비스
 ///
@@ -26,13 +32,17 @@ class NotificationService {
   static const String _channelName = 'TagDo 알람';
   static const String _channelDescription = '할 일 마감 알림';
 
-  /// 알람 서비스 초기화 (앱 시작 시 한 번만 호출)
+  /// 알람 서비스 초기화 (앱 시작 시 main에서 1회 호출)
+  ///
+  /// - 타임존: Asia/Seoul (스케줄 시간대)
+  /// - Android: 채널 생성, 권한 요청
+  /// - iOS: alert/badge/sound 권한 요청
   Future<bool> initialize() async {
     if (_isInitialized) return true;
 
     try {
       tz.initializeTimeZones();
-      tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
+      tz.setLocalLocation(tz.getLocation('Asia/Seoul')); // GPS 아님, IANA 타임존 ID
 
       const AndroidInitializationSettings androidSettings =
           AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -73,6 +83,7 @@ class NotificationService {
     }
   }
 
+  /// Android 알람 채널 생성 (Android 8+ 필수)
   Future<void> _createNotificationChannel() async {
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       _channelId,
@@ -89,6 +100,7 @@ class NotificationService {
         ?.createNotificationChannel(channel);
   }
 
+  /// Android 13+ 알림 권한 요청
   Future<void> _requestAndroidNotificationPermission() async {
     try {
       final androidImplementation = _notifications
@@ -163,6 +175,7 @@ class NotificationService {
     return false;
   }
 
+  /// 알림 권한 영구 거부 시: 설정 이동 안내 다이얼로그
   Future<bool> _showPermissionDeniedDialog(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
@@ -193,6 +206,18 @@ class NotificationService {
     return (todoNo % 0x7FFFFFFF).abs();
   }
 
+  /// 예약된 알람 개수 → 앱 아이콘 배지 숫자 반영 (iOS, Android 일부 런처)
+  Future<void> _updateBadgeCount(int count) async {
+    try {
+      await AppBadgePlus.updateBadge(count);
+    } catch (_) {}
+  }
+
+  /// 앱 진입 시 배지 제거 (읽음 처리)
+  Future<void> clearBadge() async {
+    await _updateBadgeCount(0);
+  }
+
   /// 알람 등록 (dueDate가 설정된 Todo만)
   Future<int?> scheduleNotification(Todo todo) async {
     if (todo.dueDate == null) return null;
@@ -209,7 +234,11 @@ class NotificationService {
     final notificationId = _toNotificationId(todo.no);
 
     try {
-      await cancelNotification(todo.no);
+      await cancelNotification(todo.no); // 기존 알람 있으면 먼저 취소
+
+      // 배지 숫자 = 현재 예약 개수 + 이번에 추가하는 1개
+      final pending = await _notifications.pendingNotificationRequests();
+      final badgeNumber = pending.length + 1;
 
       final scheduledDate = tz.TZDateTime(
         tz.local,
@@ -231,15 +260,17 @@ class NotificationService {
         enableVibration: true,
       );
 
-      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+      // iOS: 알림 도착 시 앱 아이콘에 badgeNumber 표시
+      final DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
         presentBanner: true,
         presentList: true,
+        badgeNumber: badgeNumber,
       );
 
-      const NotificationDetails details = NotificationDetails(
+      final NotificationDetails details = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );
@@ -263,23 +294,29 @@ class NotificationService {
   }
 
   /// 알람 취소 (todoNo 전달 시 내부에서 32비트 ID로 변환)
+  /// 취소 후 남은 예약 개수로 배지 업데이트
   Future<void> cancelNotification(int todoNo) async {
     try {
       await _notifications.cancel(id: _toNotificationId(todoNo));
+      final pending = await _notifications.pendingNotificationRequests();
+      await _updateBadgeCount(pending.length); // 배지 숫자 갱신
     } catch (e) {
       debugPrint('[Notification] 알람 취소 오류: $e');
     }
   }
 
-  /// 모든 알람 취소
+  /// 모든 알람 취소 (전체 삭제 시 호출)
+  /// 배지도 0으로 초기화
   Future<void> cancelAllNotifications() async {
     try {
       await _notifications.cancelAll();
+      await _updateBadgeCount(0);
     } catch (e) {
       debugPrint('[Notification] 전체 알람 취소 오류: $e');
     }
   }
 
+  /// 알람 탭 시 콜백 (추후 딥링크 등 확장 가능)
   void _onNotificationTapped(NotificationResponse response) {
     debugPrint('[Notification] 알람 탭됨: id=${response.id}');
   }
@@ -314,7 +351,8 @@ class NotificationService {
     }
   }
 
-  /// 과거 알람 정리 (앱 시작/포그라운드 복귀 시)
+  /// 과거 마감일 알람 정리 (앱 시작/포그라운드 복귀 시 main에서 호출)
+  /// 마감일 지난 Todo의 알람을 취소하고 DB dueDate는 유지
   Future<void> cleanupExpiredNotifications({
     required List<Todo> todos,
     required Future<void> Function(Todo) updateTodo,

@@ -1,5 +1,7 @@
 // home.dart
-// 핵심 기능만 간단히 요약
+// 메인 화면 - Todo 목록, 검색, 필터, 튜토리얼(ShowcaseView)
+//
+// [튜토리얼] 6단계: 태그관리 → 메뉴 → 검색 → 추가 → 필터 → 첫 할일
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -32,13 +34,13 @@ class TodoHome extends ConsumerStatefulWidget {
 
 class _TodoHomeState extends ConsumerState<TodoHome> {
   late final TextEditingController _searchController;
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _drawerKey = GlobalKey();
-  final _tagManageKey = GlobalKey();
-  final _searchKey = GlobalKey();
-  final _addKey = GlobalKey();
-  final _filterKey = GlobalKey();
-  final _firstTodoKey = GlobalKey();
+  final _scaffoldKey = GlobalKey<ScaffoldState>(); // Drawer 열기/닫기용
+  final _drawerKey = GlobalKey();   // 튜토리얼 2단계: 메뉴 버튼
+  final _tagManageKey = GlobalKey(); // 튜토리얼 1단계: 태그 관리 (Drawer 내)
+  final _searchKey = GlobalKey();   // 튜토리얼 3단계: 검색
+  final _addKey = GlobalKey();      // 튜토리얼 4단계: 할 일 추가
+  final _filterKey = GlobalKey();  // 튜토리얼 5단계: 필터 칩
+  final _firstTodoKey = GlobalKey(); // 튜토리얼 6단계: 첫 할 일
   bool _tutorialInitialized = false;
 
   @override
@@ -67,6 +69,10 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
     super.dispose();
   }
 
+  /// 튜토리얼 초기화 (ShowcaseView 6단계)
+  ///
+  /// 1. ShowcaseView 등록 (건너뛰기/다음 버튼, 완료 시 플래그 저장)
+  /// 2. postFrameCallback: 튜토리얼용 할 일 생성 → Drawer 열기 → 스포트라이트 시작
   void _initTutorial(BuildContext context) {
     final p = context.palette;
     final scaffoldKey = _scaffoldKey;
@@ -75,7 +81,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
       onDismiss: (_) => AppStorage.setTutorialCompleted(),
       onFinish: () => AppStorage.setTutorialCompleted(),
       onComplete: (index, key) {
-        /// 태그 관리(1번) → 검색(2번) 전환 시 Drawer 닫기
+        // 2단계(메뉴) → 3단계(검색) 전환 시 Drawer 닫기
         if (index == 1) scaffoldKey.currentState?.closeDrawer();
       },
       globalTooltipActionConfig: TooltipActionConfig(
@@ -103,7 +109,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
       ],
     );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // 튜토리얼용 할 일 생성 (시스템 언어에 맞게 context.tr() 사용)
+      // [1] 앱 최초 설치 시: 튜토리얼용 할 일 1개 생성 (5분 후 알람, 시스템 언어 반영)
       if (!AppStorage.getTutorialTodoCreated() &&
           AppStorage.getFirstLaunchDate() != null) {
         final todos = await ref.read(todoListProvider.future);
@@ -112,6 +118,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
           await ref.read(todoListProvider.notifier).createTutorialTodoIfNeeded(content);
         }
       }
+      // [2] 튜토리얼 미완료 시: Drawer 열고 6단계 스포트라이트 시작
       if (!AppStorage.getTutorialCompleted() && mounted) {
         await Future.delayed(const Duration(milliseconds: 400));
         if (!mounted) return;
@@ -124,7 +131,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
           _filterKey,
           if (todos.isNotEmpty) _firstTodoKey,
         ];
-        _scaffoldKey.currentState?.openDrawer();
+        _scaffoldKey.currentState?.openDrawer(); // 1단계(태그관리)가 보이도록
         await Future.delayed(const Duration(milliseconds: 350));
         if (!mounted) return;
         ShowcaseView.get().startShowCase(keys);
@@ -459,7 +466,8 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
     ref.read(todoListProvider.notifier).reloadData();
   }
 
-  /// [_restartTutorial] - Drawer "튜토리얼 다시 보기" 호출 시
+  /// Drawer "튜토리얼 다시 보기" 탭 시 6단계 스포트라이트 재시작
+  /// AppDrawer.onTutorialReplay 콜백으로 호출됨
   void _restartTutorial() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;

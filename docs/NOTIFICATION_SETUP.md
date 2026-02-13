@@ -11,13 +11,14 @@
 5. [코드 설정](#코드-설정)
 6. [사용 방법](#사용-방법)
 7. [주요 파라미터 설명](#주요-파라미터-설명)
-8. [트러블슈팅](#트러블슈팅)
+8. [앱 아이콘 배지 (iOS)](#앱-아이콘-배지-ios)
+9. [트러블슈팅](#트러블슈팅)
 
 ---
 
 ## 개요
 
-DailyFlow 앱은 `flutter_local_notifications` 패키지를 사용하여 로컬 알람 기능을 구현합니다.
+TagDo 앱은 `flutter_local_notifications` 패키지를 사용하여 로컬 알람 기능을 구현합니다.
 
 **주요 특징:**
 - 1 Todo당 최대 1개의 알람만 지원 (dueDate 기반)
@@ -26,6 +27,7 @@ DailyFlow 앱은 `flutter_local_notifications` 패키지를 사용하여 로컬 
 - **포그라운드와 백그라운드 모두에서 알림 표시**
 - 앱이 종료된 상태에서도 알람 작동
 - 재부팅 후에도 알람 스케줄 유지
+- **앱 아이콘 배지**: 예약된 알람 개수 표시 (iOS, 로컬 푸시로 구현)
 
 ---
 
@@ -35,15 +37,17 @@ DailyFlow 앱은 `flutter_local_notifications` 패키지를 사용하여 로컬 
 
 ```yaml
 dependencies:
-  flutter_local_notifications: ^19.5.0
+  flutter_local_notifications: ^20.0.0
   timezone: ^0.10.0
-  permission_handler: ^11.3.1
+  permission_handler: ^12.0.1
+  flutter_app_badger: ^1.5.0
 ```
 
 **설명:**
 - `flutter_local_notifications`: 로컬 알람 기능 제공
 - `timezone`: 시간대 처리 및 스케줄링
 - `permission_handler`: 권한 상태 확인 및 관리 (Android 13+ 권한 처리)
+- `app_badge_plus`: 앱 아이콘 배지 숫자 직접 설정 (iOS, Android 일부 런처)
 
 ---
 
@@ -266,9 +270,9 @@ Future<bool> initialize() async {
 ```dart
 Future<void> _createNotificationChannel() async {
   const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'daily_flow_alarm_channel',  // 채널 ID
-    'DailyFlow 알람',             // 채널 이름
-    description: '일정 알람 알림',  // 채널 설명
+    'tagdo_alarm_channel',       // 채널 ID
+    'TagDo 알람',                // 채널 이름
+    description: '할 일 마감 알림',  // 채널 설명
     importance: Importance.high,  // 중요도
     playSound: true,              // 소리 재생
     enableVibration: true,        // 진동 활성화
@@ -378,9 +382,9 @@ await _notifications.zonedSchedule(
 
 ```dart
 const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-  'daily_flow_alarm_channel',  // 채널 ID
-  'DailyFlow 알람',             // 채널 이름
-  channelDescription: '일정 알람 알림',
+  'tagdo_alarm_channel',       // 채널 ID
+  'TagDo 알람',                // 채널 이름
+  channelDescription: '할 일 마감 알림',
   importance: Importance.high,  // 중요도
   priority: Priority.high,      // 우선순위
   playSound: true,              // 소리 재생
@@ -400,12 +404,21 @@ const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
 #### iOS 설정
 
 ```dart
-const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
-  presentAlert: true,   // 알림 표시
-  presentBadge: true,   // 배지 표시
-  presentSound: true,   // 소리 재생
+// badgeNumber: 예약된 알람 개수 (알림 도착 시 앱 아이콘에 표시)
+final pending = await _notifications.pendingNotificationRequests();
+final DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+  presentAlert: true,
+  presentBadge: true,
+  presentSound: true,
+  presentBanner: true,
+  presentList: true,
+  badgeNumber: pending.length + 1,  // 새 알람 포함 개수
 );
 ```
+
+**배지 동작:**
+- `DarwinNotificationDetails.badgeNumber`: 알림 도착 시 앱 아이콘에 표시할 숫자
+- `flutter_app_badger`: 알람 취소 시, 앱 진입 시 배지 직접 업데이트
 
 ### 3. TZDateTime 생성
 
@@ -461,7 +474,7 @@ tz.TZDateTime scheduledDate = tz.TZDateTime(
    - Android 13+에서는 시스템 설정에서 확인 필요
 
 3. 앱 설정에서 알림 권한 수동 확인
-   - 설정 > 앱 > DailyFlow > 알림 권한 확인
+   - 설정 > 앱 > TagDo > 알림 권한 확인
 
 4. 영구 거부 상태인 경우
    - 앱에서 권한 요청 시 안내 다이얼로그가 표시됨
@@ -563,14 +576,37 @@ if (!granted) {
 
 ---
 
+## 앱 아이콘 배지 (iOS)
+
+로컬 푸시만으로도 앱 아이콘에 예약 알람 개수를 표시할 수 있습니다. (FCM 불필요)
+
+### 동작 방식
+
+| 시점 | 동작 |
+|------|------|
+| 알람 등록 | `DarwinNotificationDetails.badgeNumber` = 예약 개수 |
+| 알람 도착 | 해당 숫자가 앱 아이콘에 표시 |
+| 알람 취소 | `flutter_app_badger`로 배지 숫자 감소 |
+| 앱 진입 | `clearBadge()` 호출로 배지 제거 (읽음 처리) |
+
+### 관련 API
+
+```dart
+// 앱 진입 시 배지 제거
+await notificationService.clearBadge();
+```
+
+---
+
 ## 버전 정보
 
-- **flutter_local_notifications**: ^19.5.0
+- **flutter_local_notifications**: ^20.0.0
 - **timezone**: ^0.10.0
-- **permission_handler**: ^11.3.1
+- **permission_handler**: ^12.0.1
+- **app_badge_plus**: ^1.2.6
 - **desugar_jdk_libs**: 2.1.4
 
 ---
 
-**최종 업데이트:** 2024년 12월
+**최종 업데이트:** 2025년 2월
 

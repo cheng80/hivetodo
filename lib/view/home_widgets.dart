@@ -106,6 +106,7 @@ class HomeSearchField extends ConsumerWidget {
 
 /// ─────────────────────────────────────────────────
 /// 필터 바 (태그 드롭다운 + 상태 칩)
+/// filterShowcaseKey: 튜토리얼 5단계(전체/미완료/완료) Showcase용
 /// ─────────────────────────────────────────────────
 class HomeFilterRow extends ConsumerWidget {
   final GlobalKey? filterShowcaseKey;
