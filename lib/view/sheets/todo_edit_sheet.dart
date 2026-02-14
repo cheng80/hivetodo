@@ -3,10 +3,10 @@
 // 내부 위젯은 todo_edit_sheet/ 폴더에 분리됨
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tagdo/model/todo.dart';
-import 'package:tagdo/theme/config_ui.dart';
 import 'package:tagdo/view/sheets/todo_edit_sheet/edit_sheet_content_field.dart';
 import 'package:tagdo/view/sheets/todo_edit_sheet/edit_sheet_due_date_field.dart';
 import 'package:tagdo/view/sheets/todo_edit_sheet/edit_sheet_header.dart';
@@ -120,7 +120,9 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final initialDate = ref.read(editDueDateProvider) ?? now;
+    final savedDueDate = ref.read(editDueDateProvider) ?? now;
+    // 과거 마감일이면 initialDate를 오늘로 (showDatePicker assertion 방지)
+    final initialDate = savedDueDate.isBefore(today) ? today : savedDueDate;
 
     final date = await showDatePicker(
       context: context,
@@ -131,10 +133,9 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
     );
     if (date == null || !mounted) return;
 
-    final time = await showTimePicker(
+    final time = await _showCupertinoTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(initialDate),
-      helpText: "timeSelect".tr(),
+      initialTime: TimeOfDay.fromDateTime(savedDueDate),
     );
     if (time == null || !mounted) return;
 
@@ -146,5 +147,72 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
       time.minute,
     );
     ref.read(editDueDateProvider.notifier).setDueDate(result);
+  }
+
+  /// Cupertino 스타일 시간 선택 바텀시트 (Material showTimePicker 대체)
+  static Future<TimeOfDay?> _showCupertinoTimePicker({
+    required BuildContext context,
+    required TimeOfDay initialTime,
+  }) async {
+    final use24h = MediaQuery.of(context).alwaysUse24HourFormat;
+    DateTime selected = DateTime(2000, 1, 1, initialTime.hour, initialTime.minute);
+
+    return showModalBottomSheet<TimeOfDay>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: 280,
+        decoration: BoxDecoration(
+          color: Theme.of(ctx).brightness == Brightness.dark
+              ? const Color(0xFF2C2C2C)
+              : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: Text("cancel".tr()),
+                  ),
+                  Text(
+                    "timeSelect".tr(),
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(ctx).textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(
+                      TimeOfDay(hour: selected.hour, minute: selected.minute),
+                    ),
+                    child: Text("confirm".tr()),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: CupertinoTheme(
+                data: CupertinoThemeData(
+                  brightness: Theme.of(ctx).brightness,
+                ),
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: selected,
+                  use24hFormat: use24h,
+                  minuteInterval: 1,
+                  onDateTimeChanged: (dt) => selected = dt,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
