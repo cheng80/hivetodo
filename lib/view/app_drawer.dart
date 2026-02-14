@@ -17,6 +17,7 @@ import 'package:tagdo/view/sheets/todo_edit_sheet.dart';
 import 'package:tagdo/view/tag_settings.dart';
 import 'package:tagdo/vm/theme_notifier.dart';
 import 'package:tagdo/vm/todo_list_notifier.dart';
+import 'package:tagdo/vm/wakelock_notifier.dart';
 
 /// AppDrawer - 설정 및 부가 기능을 위한 사이드 메뉴
 ///
@@ -156,6 +157,33 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                     inactiveTrackColor: p.chipUnselectedBg,
                     onChanged: (_) {
                       ref.read(themeNotifierProvider.notifier).toggleTheme();
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            /// 화면 꺼짐 방지 스위치
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: ConfigUI.screenPaddingH,
+                vertical: 4,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'screenWakeLock'.tr(),
+                    style: TextStyle(color: p.textPrimary, fontSize: 16),
+                  ),
+                  Switch(
+                    value: ref.watch(wakelockNotifierProvider),
+                    activeThumbColor: p.chipSelectedBg,
+                    activeTrackColor: p.chipUnselectedBg,
+                    inactiveThumbColor: p.textMeta,
+                    inactiveTrackColor: p.chipUnselectedBg,
+                    onChanged: (_) {
+                      ref.read(wakelockNotifierProvider.notifier).toggle();
                     },
                   ),
                 ],

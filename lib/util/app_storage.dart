@@ -75,5 +75,15 @@ class AppStorage {
   static Future<void> setTutorialTodoCreated() =>
       _storage.write(_keyTutorialTodoCreated, true);
 
+  // ─── 화면 꺼짐 방지 (wakelock_plus) ─────────────────
+  static const String _keyWakelock = 'wakelock_enabled';
+
+  /// 화면 꺼짐 방지 여부 (기본값 false)
+  static bool getWakelockEnabled() =>
+      _storage.read<bool>(_keyWakelock) ?? false;
+
+  static Future<void> setWakelockEnabled(bool enabled) =>
+      _storage.write(_keyWakelock, enabled);
+
   // ─── 추후 설정 추가 시 여기에 ────────────────────
 }

@@ -18,6 +18,7 @@ import 'package:tagdo/view/home.dart';
 import 'package:tagdo/service/in_app_review_service.dart';
 import 'package:tagdo/util/app_locale.dart';
 import 'package:tagdo/util/app_storage.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:tagdo/vm/theme_notifier.dart';
 import 'package:tagdo/vm/todo_list_notifier.dart';
@@ -49,6 +50,13 @@ void main() async {
   /// [Step 0-1] 첫 실행일 저장 (스토어 리뷰 조건용)
   if (AppStorage.getFirstLaunchDate() == null) {
     await AppStorage.saveFirstLaunchDate(DateTime.now());
+  }
+
+  /// [Step 0-2] 저장된 화면 꺼짐 방지 설정 적용
+  if (AppStorage.getWakelockEnabled()) {
+    WakelockPlus.enable();
+  } else {
+    WakelockPlus.disable();
   }
 
   /// [Step 1] Hive를 Flutter 환경에 맞게 초기화합니다.
@@ -164,9 +172,14 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     }
   }
 
-  /// 포그라운드 복귀 시: 배지 제거, 과거 알람 정리, 알람 재등록
+  /// 포그라운드 복귀 시: 배지 제거, 과거 알람 정리, 알람 재등록, wakelock 재적용
   Future<void> _performCleanupOnResume() async {
     try {
+      if (AppStorage.getWakelockEnabled()) {
+        WakelockPlus.enable();
+      } else {
+        WakelockPlus.disable();
+      }
       await _notificationService.clearBadge();
       final todos = await ref.read(todoListProvider.future);
       final notifier = ref.read(todoListProvider.notifier);

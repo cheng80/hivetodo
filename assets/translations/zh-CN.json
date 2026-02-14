@@ -16,6 +16,7 @@
   "deleteAllMessage": "确定要删除全部吗？",
   "settings": "设置",
   "darkMode": "深色模式",
+  "screenWakeLock": "防止屏幕熄灭",
   "tagManage": "标签管理",
   "rateApp": "为应用评分",
   "tutorial_skip": "跳过",

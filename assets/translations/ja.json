@@ -16,6 +16,7 @@
   "deleteAllMessage": "本当にすべて削除しますか？",
   "settings": "設定",
   "darkMode": "ダークモード",
+  "screenWakeLock": "画面消灯防止",
   "tagManage": "タグ管理",
   "rateApp": "アプリを評価",
   "tutorial_skip": "スキップ",

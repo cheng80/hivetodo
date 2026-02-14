@@ -7,15 +7,16 @@
     - `AppStorage`: getTutorialCompleted, setTutorialCompleted, resetTutorialCompleted
   - [x] 2단계: Home 화면에 ShowcaseView 래핑
     - `ShowcaseView.register()` + `startShowCase()` (addPostFrameCallback)
-    - GlobalKey 5개: drawer, search, add, filter, firstTodo
+    - GlobalKey 6개: tagManage, drawer, search, add, filter, firstTodo
   - [x] 3단계: 스포트라이트 대상 정의 및 순서
-    - 1) 햄버거 메뉴 → 태그 관리, 언어, 테마
-    - 2) 검색 버튼 → 할 일 검색
-    - 3) + 버튼 → 새 할 일 추가
-    - 4) 필터 칩 (전체/미완료/완료) → 목록 필터
-    - 5) 첫 할 일 항목 → 체크박스, 태그, 드래그 핸들, 마감일
+    - 1) 태그 관리 → Drawer 내 태그 관리 버튼
+    - 2) 햄버거 메뉴 → 메뉴 열기, 태그 관리·언어·테마
+    - 3) 검색 버튼 → 할 일 검색
+    - 4) + 버튼 → 새 할 일 추가
+    - 5) 필터 칩 (전체/미완료/완료) → 목록 필터
+    - 6) 첫 할 일 항목 → 체크박스, 태그, 드래그 핸들, 마감일
   - [x] 4단계: 다국어 문자열 추가
-    - tutorial_skip, tutorial_next, tutorial_step_1~5, tutorial_replay (ko, en, ja, zh-CN, zh-TW)
+    - tutorial_skip, tutorial_next, tutorial_step_1~6, tutorial_replay (ko, en, ja, zh-CN, zh-TW)
   - [x] 5단계: "튜토리얼 다시 보기" 메뉴
     - Drawer에 ListTile 추가, onTutorialReplay 콜백으로 startShowCase 재호출
 
@@ -65,6 +66,7 @@
 - [x] **Drawer 추가**
   - 세팅 헤더 (기어 아이콘 + "세팅" 텍스트)
   - 다크 모드 스위치
+  - 화면 꺼짐 방지 스위치 (wakelock_plus, 기본값 false)
   - 태그 관리 버튼
 
 - [x] **테마 시스템 적용 (다크/라이트 모드)**
@@ -93,7 +95,9 @@
 
 - [x] **마감일 및 알림 기능 (단계적 구현)**
   - [x] 1단계: Todo 모델에 `dueDate` (DateTime?) 필드 추가 + TypeAdapter 수정
-  - [x] 2단계: 편집 시트에 날짜/시간 선택 UI (DatePicker + TimePicker) - 바텀시트 내 마감일 필드
+  - [x] 2단계: 편집 시트에 날짜/시간 선택 UI
+    - 날짜: `showDatePicker` (Material 캘린더)
+    - 시간: `CupertinoDatePicker` 바텀시트 (Material showTimePicker 대체)
   - [x] 3단계: 홈 화면 Todo 아이템에 마감일 표시 (알람 아이콘 + 날짜/시간 텍스트)
   - [x] 4단계: `flutter_local_notifications` 연동 (알림 예약/취소/수정)
     - `NotificationService`: scheduleNotification, cancelNotification, cleanupExpiredNotifications
@@ -104,6 +108,7 @@
   - [x] 5단계: iOS 권한 요청 처리 (Info.plist, AppDelegate 설정)
     - `requestPermission`, `DarwinInitializationSettings` (presentBanner, presentList 등)
   - Drawer "알람 상태 확인" 메뉴: Hive Box 마감일 Todo 개수 + 등록된 알람 개수 표시
+  - [x] 앱 아이콘 배지 (app_badge_plus): 예약 알람 개수 표시, 앱 진입 시 clearBadge
 
 - [x] **마감일 필터 (알람 아이콘 토글)**
   - 홈 필터: [전체][미완료][완료] 왼쪽 / [🔔] 오른쪽
@@ -117,6 +122,26 @@
   - `assets/icon.png`, `assets/splash.png` (TagDo 텍스트 포함)
   - `flutter_launcher_icons`, `flutter_native_splash` 설정
   - `FlutterNativeSplash.preserve()` / `remove()` 패턴 적용
+
+- [x] **튜토리얼용 할 일 자동 생성**
+  - 앱 최초 설치 시 5분 후 알람이 있는 튜토리얼 할 일 1개 생성
+  - `AppStorage.tutorial_todo_created` 플래그로 1회만 실행
+  - `TodoListNotifier.createTutorialTodoIfNeeded()` — Home에서 `context.tr()`로 번역된 문자열 전달
+
+## 기능 확장
+
+- [ ] **위젯/홈 위젯**
+  - 홈 화면에 Todo 요약 표시 (미완료 개수, 다음 마감일 등)
+  - `home_widget` 패키지 사용, 네이티브 위젯(Android/iOS) 작성 필요
+  - 참고: [docs/HOME_WIDGET_PACKAGE_REVIEW.md](docs/HOME_WIDGET_PACKAGE_REVIEW.md)
+
+- [ ] **백업/복원**
+  - Hive 데이터(Todo, Tag) 내보내기·가져오기
+  - 파일 저장/불러오기 또는 공유(Share)로 백업본 전달
+
+- [ ] **데이터 내보내기**
+  - CSV/JSON 등으로 Todo 목록 내보내기
+  - 설정 또는 Drawer에서 "데이터 내보내기" 메뉴
 
 ## 출시 준비
 
@@ -152,11 +177,15 @@
   - `.g.dart` → `_adapter.dart` (수동 관리 명확화)
   - 코드 제너레이터 마이그레이션 가이드 문서 작성 (`docs/generator_migration.md`)
 
+- [x] **과거 마감일 수정 시 DatePicker assertion 수정**
+  - `initialDate`가 `firstDate`(오늘)보다 이전일 때 assertion 발생
+  - `savedDueDate.isBefore(today)` 시 `initialDate`를 오늘로 클램프
+
 ## 구조 개선
 
 - [x] **MVVM 패턴 정리**
   - Handler: DB/저장소 접근 전담 (DatabaseHandler, TagHandler)
-  - Notifier: Riverpod 상태 관리 (TodoListNotifier, TagListNotifier, ThemeNotifier)
+  - Notifier: Riverpod 상태 관리 (TodoListNotifier, TagListNotifier, ThemeNotifier, WakelockNotifier)
   - vm_handler.dart 삭제 → TodoListNotifier로 통합
 
 - [x] **Todo 아이템 위젯 분리**

@@ -16,6 +16,7 @@
   "deleteAllMessage": "Are you sure you want to delete everything?",
   "settings": "Settings",
   "darkMode": "Dark mode",
+  "screenWakeLock": "Keep screen on",
   "tagManage": "Tag management",
   "rateApp": "Rate this app",
   "tutorial_skip": "Skip",
