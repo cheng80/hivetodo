@@ -37,6 +37,43 @@
 
 ---
 
+## 사용 패키지
+
+| 패키지 | 버전 | 용도 |
+|--------|------|------|
+| **상태·UI** | | |
+| flutter_riverpod | ^3.2.0 | 상태 관리 (Todo, 테마, 필터) |
+| flutter_colorpicker | ^1.1.0 | 태그 색상 선택 (MaterialPicker) |
+| **로컬 저장소** | | |
+| hive / hive_flutter | ^2.2.3 / ^1.1.0 | Todo·Tag DB (NoSQL) |
+| get_storage | ^2.1.1 | 경량 설정 (테마, 튜토리얼, wakelock 등) |
+| **알림·배지** | | |
+| flutter_local_notifications | ^20.1.0 | 마감일 로컬 알람 |
+| timezone | ^0.10.0 | 알람 타임존 처리 |
+| app_badge_plus | ^1.2.6 | 앱 아이콘 배지 (예약 알람 개수) |
+| **다국어** | | |
+| easy_localization | ^3.0.8 | 5개 언어 (ko, en, ja, zh-CN, zh-TW) |
+| intl | ^0.20.2 | 날짜 포맷 |
+| **기타** | | |
+| permission_handler | ^12.0.1 | 알림 등 권한 요청 |
+| showcaseview | ^5.0.1 | 튜토리얼/온보딩 스포트라이트 |
+| in_app_review | ^2.0.11 | 스토어 평점 요청 팝업 |
+| wakelock_plus | ^1.4.0 | 화면 꺼짐 방지 |
+| flutter_native_splash | ^2.4.7 | 앱 시작 스플래시 |
+| http | ^1.1.0 | HTTP 클라이언트 (NetworkUtil 등) |
+
+<details>
+<summary>dev_dependencies</summary>
+
+| 패키지 | 용도 |
+|--------|------|
+| flutter_lints | 린트 규칙 |
+| flutter_launcher_icons | 앱 아이콘 생성 |
+
+</details>
+
+---
+
 ## 아키텍처
 
 **MVVM + 레이어 분리**

@@ -22,10 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class TodoEditSheet extends ConsumerStatefulWidget {
   final Todo? update;
 
-  const TodoEditSheet({
-    super.key,
-    required this.update,
-  });
+  const TodoEditSheet({super.key, required this.update});
 
   @override
   ConsumerState<TodoEditSheet> createState() => _TodoEditSheetState();
@@ -77,10 +74,7 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
         width: MediaQuery.of(context).size.width,
         child: Column(
           children: [
-            EditSheetHeader(
-              isUpdate: widget.update != null,
-              onSave: _onSave,
-            ),
+            EditSheetHeader(isUpdate: widget.update != null, onSave: _onSave),
             EditSheetContentField(controller: _controller),
             EditSheetDueDateField(onPickDate: _pickDateAndTime),
             Expanded(child: EditSheetTagSelector()),
@@ -149,68 +143,87 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
     ref.read(editDueDateProvider.notifier).setDueDate(result);
   }
 
-  /// Cupertino 스타일 시간 선택 바텀시트 (Material showTimePicker 대체)
+  /// Cupertino 스타일 시간 선택 모달 (달력 showDatePicker와 동일하게 다이얼로그 형태)
   static Future<TimeOfDay?> _showCupertinoTimePicker({
     required BuildContext context,
     required TimeOfDay initialTime,
   }) async {
     final use24h = MediaQuery.of(context).alwaysUse24HourFormat;
-    DateTime selected = DateTime(2000, 1, 1, initialTime.hour, initialTime.minute);
+    DateTime selected = DateTime(
+      2000,
+      1,
+      1,
+      initialTime.hour,
+      initialTime.minute,
+    );
 
-    return showModalBottomSheet<TimeOfDay>(
+    return showCupertinoModalPopup<TimeOfDay>(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        height: 280,
-        decoration: BoxDecoration(
-          color: Theme.of(ctx).brightness == Brightness.dark
-              ? const Color(0xFF2C2C2C)
-              : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(),
-                    child: Text("cancel".tr()),
+      builder: (ctx) => CupertinoTheme(
+        data: CupertinoThemeData(brightness: Theme.of(ctx).brightness),
+        child: Container(
+          height: 280,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).padding.bottom + 16,
+          ),
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemBackground.resolveFrom(ctx),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 헤더: 취소 | 시간 선택 | 확인 (텍스트와 피커 간 간격 확보)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: Text("cancel".tr()),
+                      ),
+                      Expanded(
+                        child: Text(
+                          "timeSelect".tr(),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            color: CupertinoColors.label.resolveFrom(ctx),
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => Navigator.of(ctx).pop(
+                          TimeOfDay(
+                            hour: selected.hour,
+                            minute: selected.minute,
+                          ),
+                        ),
+                        child: Text("confirm".tr()),
+                      ),
+                    ],
                   ),
-                  Text(
-                    "timeSelect".tr(),
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(ctx).textTheme.bodyLarge?.color,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(
-                      TimeOfDay(hour: selected.hour, minute: selected.minute),
-                    ),
-                    child: Text("confirm".tr()),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: CupertinoTheme(
-                data: CupertinoThemeData(
-                  brightness: Theme.of(ctx).brightness,
                 ),
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.time,
-                  initialDateTime: selected,
-                  use24hFormat: use24h,
-                  minuteInterval: 1,
-                  onDateTimeChanged: (dt) => selected = dt,
+                const SizedBox(height: 8),
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.time,
+                    initialDateTime: selected,
+                    use24hFormat: use24h,
+                    minuteInterval: 1,
+                    onDateTimeChanged: (dt) => selected = dt,
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

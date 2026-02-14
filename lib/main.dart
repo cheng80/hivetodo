@@ -213,8 +213,24 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       themeMode: themeMode,
 
       /// 라이트/다크 ThemeData (context.palette 동작에 필요)
-      theme: ThemeData(brightness: Brightness.light),
-      darkTheme: ThemeData(brightness: Brightness.dark),
+      theme: ThemeData(
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.light(
+          primary: const Color(0xFF1976D2),
+          onPrimary: Colors.white,
+          surface: const Color(0xFFF5F5F5),
+          onSurface: const Color(0xFF212121),
+        ),
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.dark(
+          primary: Colors.white,
+          onPrimary: const Color.fromRGBO(26, 26, 26, 1),
+          surface: const Color.fromRGBO(26, 26, 26, 1),
+          onSurface: Colors.white,
+        ),
+      ),
 
       /// 최상위 Overlay 접근을 위한 navigatorKey 연결
       navigatorKey: rootNavigatorKey,
