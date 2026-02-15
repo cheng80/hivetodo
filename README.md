@@ -33,7 +33,7 @@
 | 설정 | GetStorage | 테마·언어 등 경량 설정 |
 | 다국어 | easy_localization | 5개 언어, locale 기반 |
 | 알림 | flutter_local_notifications | 마감일 알람, 포그라운드 표시 |
-| UI | Material + Custom ColorScheme | 테마 일관성, 시맨틱 컬러 |
+| UI | Material + Custom ColorScheme | 플랫/미니멀 스타일, 테마 일관성, 시맨틱 컬러 |
 
 ---
 
