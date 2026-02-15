@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:tagdo/model/todo.dart';
 import 'package:tagdo/service/in_app_review_service.dart';
 import 'package:tagdo/service/notification_service.dart';
@@ -83,7 +84,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 헤더 (설정 아이콘 + 타이틀) - 길게 누르면 개발용 버튼 토글
+            // ─── 헤더 (고정) ─────────────────
             GestureDetector(
               onLongPress: () {
                 HapticFeedback.mediumImpact();
@@ -109,169 +110,198 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                 ),
               ),
             ),
-            if (_showDevButtons) ...[
-              ListTile(
-                leading: Icon(Icons.data_object, color: p.icon),
-                title: Text(
-                  'dummyData'.tr(),
-                  style: TextStyle(color: p.textPrimary, fontSize: 16),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _insertDummyData(ref);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.add, color: p.icon),
-                title: Text(
-                  'add'.tr(),
-                  style: TextStyle(color: p.textPrimary, fontSize: 16),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _showAddSheet(context, ref);
-                },
-              ),
-              Divider(color: p.divider, height: 1),
-            ],
             Divider(color: p.divider, height: 1),
 
-            /// 다크모드 스위치
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: ConfigUI.screenPaddingH,
-                vertical: 4,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // ─── 중간 (스크롤) ─────────────────
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
                 children: [
-                  Text(
-                    'darkMode'.tr(),
-                    style: TextStyle(color: p.textPrimary, fontSize: 16),
-                  ),
-                  Switch(
-                    value: isDark,
-                    activeThumbColor: p.chipSelectedBg,
-                    activeTrackColor: p.chipUnselectedBg,
-                    inactiveThumbColor: p.textMeta,
-                    inactiveTrackColor: p.chipUnselectedBg,
-                    onChanged: (_) {
-                      ref.read(themeNotifierProvider.notifier).toggleTheme();
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            /// 화면 꺼짐 방지 스위치
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: ConfigUI.screenPaddingH,
-                vertical: 4,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'screenWakeLock'.tr(),
-                    style: TextStyle(color: p.textPrimary, fontSize: 16),
-                  ),
-                  Switch(
-                    value: ref.watch(wakelockNotifierProvider),
-                    activeThumbColor: p.chipSelectedBg,
-                    activeTrackColor: p.chipUnselectedBg,
-                    inactiveThumbColor: p.textMeta,
-                    inactiveTrackColor: p.chipUnselectedBg,
-                    onChanged: (_) {
-                      ref.read(wakelockNotifierProvider.notifier).toggle();
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            Divider(color: p.divider, height: 1),
-
-            /// 언어 선택
-            ListTile(
-              leading: Icon(Icons.language, color: p.icon),
-              title: Text(
-                'language'.tr(),
-                style: TextStyle(color: p.textPrimary, fontSize: 16),
-              ),
-              trailing: Icon(Icons.chevron_right, color: p.textSecondary),
-              onTap: () {
-                Navigator.pop(context);
-                _showLanguagePicker(context);
-              },
-            ),
-
-            /// 평점 남기기
-            ListTile(
-              leading: Icon(Icons.star_outline, color: p.icon),
-              title: Text(
-                'rateApp'.tr(),
-                style: TextStyle(color: p.textPrimary, fontSize: 16),
-              ),
-              trailing: Icon(Icons.open_in_new, color: p.textSecondary, size: 20),
-              onTap: () async {
-                Navigator.pop(context);
-                final ok = await InAppReviewService().openStoreListing();
-                if (context.mounted && !ok) {
-                  showCommonSnackBar(
-                    context,
-                    message: '평점 기능은 앱 출시 후 이용 가능합니다.',
-                  );
-                }
-              },
-            ),
-
-            /// 태그 관리 버튼
-            _wrapTagManageTile(context, p),
-
-            /// 튜토리얼 다시 보기
-            ListTile(
-              leading: Icon(Icons.school_outlined, color: p.icon),
-              title: Text(
-                'tutorial_replay'.tr(),
-                style: TextStyle(color: p.textPrimary, fontSize: 16),
-              ),
-              trailing: Icon(Icons.chevron_right, color: p.textSecondary),
-              onTap: () {
-                Navigator.pop(context);
-                AppStorage.resetTutorialCompleted();
-                widget.onTutorialReplay?.call();
-              },
-            ),
-
-            /// 알람 상태 확인 (디버깅)
-            ListTile(
-              leading: Icon(Icons.access_alarm, color: p.icon),
-              title: Text(
-                'alarmStatusCheck'.tr(),
-                style: TextStyle(color: p.textPrimary, fontSize: 16),
-              ),
-              trailing: Icon(Icons.info_outline, color: p.textSecondary),
-              onTap: () async {
-                Navigator.pop(context);
-                final todos = await ref.read(todoListProvider.future);
-                final withDueDate =
-                    todos.where((t) => t.dueDate != null).toList();
-                final pending =
-                    await NotificationService().checkPendingNotifications();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'alarmStatusSummary'.tr(namedArgs: {
-                          'count': '${withDueDate.length}',
-                          'alarmCount': '${pending.length}',
-                        }),
+                  if (_showDevButtons) ...[
+                    ListTile(
+                      leading: Icon(Icons.data_object, color: p.icon),
+                      title: Text(
+                        'dummyData'.tr(),
+                        style: TextStyle(color: p.textPrimary, fontSize: 16),
                       ),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _insertDummyData(ref);
+                      },
                     ),
+                    ListTile(
+                      leading: Icon(Icons.add, color: p.icon),
+                      title: Text(
+                        'add'.tr(),
+                        style: TextStyle(color: p.textPrimary, fontSize: 16),
+                      ),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _showAddSheet(context, ref);
+                      },
+                    ),
+                    Divider(color: p.divider, height: 1),
+                  ],
+
+                  /// 다크모드 스위치
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ConfigUI.screenPaddingH,
+                      vertical: 4,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'darkMode'.tr(),
+                          style: TextStyle(color: p.textPrimary, fontSize: 16),
+                        ),
+                        Switch(
+                          value: isDark,
+                          activeThumbColor: p.chipSelectedBg,
+                          activeTrackColor: p.chipUnselectedBg,
+                          inactiveThumbColor: p.textMeta,
+                          inactiveTrackColor: p.chipUnselectedBg,
+                          onChanged: (_) {
+                            ref.read(themeNotifierProvider.notifier).toggleTheme();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  /// 화면 꺼짐 방지 스위치
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ConfigUI.screenPaddingH,
+                      vertical: 4,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'screenWakeLock'.tr(),
+                          style: TextStyle(color: p.textPrimary, fontSize: 16),
+                        ),
+                        Switch(
+                          value: ref.watch(wakelockNotifierProvider),
+                          activeThumbColor: p.chipSelectedBg,
+                          activeTrackColor: p.chipUnselectedBg,
+                          inactiveThumbColor: p.textMeta,
+                          inactiveTrackColor: p.chipUnselectedBg,
+                          onChanged: (_) {
+                            ref.read(wakelockNotifierProvider.notifier).toggle();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Divider(color: p.divider, height: 1),
+
+                  /// 언어 선택
+                  ListTile(
+                    leading: Icon(Icons.language, color: p.icon),
+                    title: Text(
+                      'language'.tr(),
+                      style: TextStyle(color: p.textPrimary, fontSize: 16),
+                    ),
+                    trailing: Icon(Icons.chevron_right, color: p.textSecondary),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showLanguagePicker(context);
+                    },
+                  ),
+
+                  /// 평점 남기기
+                  ListTile(
+                    leading: Icon(Icons.star_outline, color: p.icon),
+                    title: Text(
+                      'rateApp'.tr(),
+                      style: TextStyle(color: p.textPrimary, fontSize: 16),
+                    ),
+                    trailing: Icon(Icons.open_in_new, color: p.textSecondary, size: 20),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final ok = await InAppReviewService().openStoreListing();
+                      if (context.mounted && !ok) {
+                        showCommonSnackBar(
+                          context,
+                          message: '평점 기능은 앱 출시 후 이용 가능합니다.',
+                        );
+                      }
+                    },
+                  ),
+
+                  /// 태그 관리 버튼
+                  _wrapTagManageTile(context, p),
+
+                  /// 튜토리얼 다시 보기
+                  ListTile(
+                    leading: Icon(Icons.school_outlined, color: p.icon),
+                    title: Text(
+                      'tutorial_replay'.tr(),
+                      style: TextStyle(color: p.textPrimary, fontSize: 16),
+                    ),
+                    trailing: Icon(Icons.chevron_right, color: p.textSecondary),
+                    onTap: () {
+                      Navigator.pop(context);
+                      AppStorage.resetTutorialCompleted();
+                      widget.onTutorialReplay?.call();
+                    },
+                  ),
+
+                  /// 알람 상태 확인 (디버깅)
+                  ListTile(
+                    leading: Icon(Icons.access_alarm, color: p.icon),
+                    title: Text(
+                      'alarmStatusCheck'.tr(),
+                      style: TextStyle(color: p.textPrimary, fontSize: 16),
+                    ),
+                    trailing: Icon(Icons.info_outline, color: p.textSecondary),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final todos = await ref.read(todoListProvider.future);
+                      final withDueDate =
+                          todos.where((t) => t.dueDate != null).toList();
+                      final pending =
+                          await NotificationService().checkPendingNotifications();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'alarmStatusSummary'.tr(namedArgs: {
+                                'count': '${withDueDate.length}',
+                                'alarmCount': '${pending.length}',
+                              }),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            // ─── 푸터 (고정) - 앱 버전 ─────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                ConfigUI.screenPaddingH, 12, ConfigUI.screenPaddingH, 16,
+              ),
+              child: FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  final v = snapshot.data;
+                  final text = v != null
+                      ? '${'appVersion'.tr()} ${v.version}+${v.buildNumber}'
+                      : 'appVersion'.tr();
+                  return Text(
+                    text,
+                    style: TextStyle(color: p.textMeta, fontSize: 12),
                   );
-                }
-              },
+                },
+              ),
             ),
           ],
         ),
