@@ -8,8 +8,8 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagdo/model/tag.dart';
 import 'package:tagdo/model/todo_color.dart';
-import 'package:tagdo/theme/app_colors.dart';
-import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/theme/app_theme_colors.dart';
+import 'package:tagdo/util/config_ui.dart';
 import 'package:tagdo/vm/tag_list_notifier.dart';
 
 /// 태그 설정 화면
@@ -18,7 +18,7 @@ class TagSettings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final p = context.palette;
+    final p = context.appTheme;
     final tagsAsync = ref.watch(tagListProvider);
 
     return Scaffold(
@@ -82,7 +82,7 @@ class TagSettings extends ConsumerWidget {
 
   /// 태그 생성/수정 다이얼로그
   void _showTagEditor(BuildContext context, WidgetRef ref, {Tag? tag}) {
-    final p = context.palette;
+    final p = context.appTheme;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -98,7 +98,7 @@ class TagSettings extends ConsumerWidget {
 
   /// 삭제 확인 다이얼로그
   void _confirmDelete(BuildContext context, WidgetRef ref, Tag tag) {
-    final p = context.palette;
+    final p = context.appTheme;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -142,7 +142,7 @@ class _TagTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
+    final p = context.appTheme;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
@@ -219,7 +219,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
+    final p = context.appTheme;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -355,7 +355,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
 
   /// 프리셋 색상 선택 다이얼로그
   void _showPresetPicker() {
-    final p = context.palette;
+    final p = context.appTheme;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -396,7 +396,7 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
 
   /// MaterialPicker 색상 선택 다이얼로그 (~190색)
   void _showMaterialPicker() {
-    final p = context.palette;
+    final p = context.appTheme;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(

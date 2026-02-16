@@ -7,8 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:tagdo/model/tag.dart';
-import 'package:tagdo/theme/app_colors.dart';
-import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/theme/app_theme_colors.dart';
+import 'package:tagdo/util/config_ui.dart';
 import 'package:tagdo/vm/home_filter_notifier.dart';
 import 'package:tagdo/vm/tag_list_notifier.dart';
 
@@ -22,7 +22,7 @@ class HomeTitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
+    final p = context.appTheme;
     return Row(
       children: [
         Text(
@@ -60,7 +60,7 @@ class HomeSearchField extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final p = context.palette;
+    final p = context.appTheme;
     final hasText = ref.watch(searchQueryProvider).trim().isNotEmpty;
 
     return TextField(
@@ -116,7 +116,7 @@ class HomeFilterRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final chips = _buildStatusChips(context, ref);
-    final p = context.palette;
+    final p = context.appTheme;
     final chipsWidget = filterShowcaseKey != null
         ? Showcase(
             key: filterShowcaseKey!,
@@ -154,7 +154,7 @@ class HomeFilterRow extends ConsumerWidget {
 
   /// 마감일 필터 아이콘 (탭 시 마감일 있는 것만 ↔ 전체)
   Widget _buildDueDateFilterIcon(BuildContext context, WidgetRef ref) {
-    final p = context.palette;
+    final p = context.appTheme;
     final isActive = ref.watch(dueDateFilterProvider) == true;
 
     return IconButton(
@@ -173,7 +173,7 @@ class HomeFilterRow extends ConsumerWidget {
 
   /// 태그 드롭다운
   Widget _buildTagDropdown(BuildContext context, WidgetRef ref) {
-    final p = context.palette;
+    final p = context.appTheme;
     final tagNames = ref.watch(tagListProvider).value ?? <Tag>[];
 
     final items = <DropdownMenuItem<int?>>[
@@ -247,7 +247,7 @@ class HomeFilterRow extends ConsumerWidget {
 
   /// 상태 필터 칩 (전체/미완료/완료)
   Widget _buildStatusChips(BuildContext context, WidgetRef ref) {
-    final p = context.palette;
+    final p = context.appTheme;
     final current = ref.watch(todoStatusProvider);
 
     Widget chip(TodoStatus status, String label) {

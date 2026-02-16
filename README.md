@@ -86,7 +86,7 @@ lib/
 │   ├── *Handler   → DB/저장소 접근 (DatabaseHandler, TagHandler)
 │   └── *Notifier  → Riverpod 상태 (TodoListNotifier, ThemeNotifier 등)
 ├── service/    # NotificationService (알림 예약·취소)
-├── theme/      # ColorScheme, palette, ConfigUI
+├── theme/      # AppThemeColors, context.appTheme
 └── util/       # 공통 유틸, locale
 
 assets/
@@ -96,7 +96,7 @@ assets/
 - **View**: UI 렌더링만. `ref.watch`로 상태 구독, `ref.read`로 액션 호출
 - **Handler**: Hive Box CRUD 전담. Repository 용어 대신 Handler 사용 (Git 혼동 방지)
 - **Notifier**: Riverpod AsyncNotifier/Notifier. `ref.invalidateSelf()`로 재로딩
-- **테마**: `CommonColorScheme` + `context.palette`로 라이트/다크 색상 통일
+- **테마**: `AppThemeColors` + `context.appTheme`로 라이트/다크 색상 통일
 - **다국어**: `easy_localization` + `assets/translations/`. JSON 형태로 각 언어별 관리 (ko, en, ja, zh-CN, zh-TW). Drawer에서 언어 선택
 
 ### 시스템 구성도

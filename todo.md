@@ -72,8 +72,8 @@
 - [x] **테마 시스템 적용 (다크/라이트 모드)**
   - `ThemeNotifier` + `GetStorage`로 테마 상태 관리/영속화
   - `CommonColorScheme` 기반 시맨틱 컬러 정의
-  - `context.palette` 확장으로 어디서든 테마 색상 접근
-  - 모든 view 파일의 하드코딩 색상 → `context.palette` 마이그레이션
+  - `context.appTheme` 확장으로 어디서든 테마 색상 접근
+  - 모든 view 파일의 하드코딩 색상 → `context.appTheme` 마이그레이션
 
 - [x] **UI 모듈화**
   - `home.dart`의 위젯 빌드 함수들을 `home_widgets.dart`로 분리

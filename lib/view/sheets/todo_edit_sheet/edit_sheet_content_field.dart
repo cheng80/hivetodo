@@ -4,8 +4,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tagdo/theme/app_colors.dart';
-import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/theme/app_theme_colors.dart';
+import 'package:tagdo/util/config_ui.dart';
 import 'package:tagdo/view/sheets/todo_edit_sheet/edit_form_field.dart';
 import 'package:tagdo/vm/edit_sheet_notifier.dart';
 
@@ -20,7 +20,7 @@ class EditSheetContentField extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final p = context.palette;
+    final p = context.appTheme;
     final isEmpty = ref.watch(isContentEmptyProvider);
 
     return EditFormField(

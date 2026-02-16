@@ -9,8 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagdo/model/tag.dart';
 import 'package:tagdo/model/todo.dart';
-import 'package:tagdo/theme/app_colors.dart';
-import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/theme/app_theme_colors.dart';
+import 'package:tagdo/util/config_ui.dart';
 import 'package:tagdo/vm/todo_list_notifier.dart';
 import 'package:tagdo/vm/tag_list_notifier.dart';
 import 'package:tagdo/vm/tag_handler.dart';
@@ -32,7 +32,7 @@ class TodoItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final p = context.palette;
+    final p = context.appTheme;
     final todoNotifier = ref.read(todoListProvider.notifier);
     final tags = ref.watch(tagListProvider).value ?? <Tag>[];
 

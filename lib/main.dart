@@ -20,6 +20,7 @@ import 'package:tagdo/util/app_locale.dart';
 import 'package:tagdo/util/app_storage.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:tagdo/theme/app_theme_colors.dart';
 import 'package:tagdo/vm/theme_notifier.dart';
 import 'package:tagdo/vm/todo_list_notifier.dart';
 
@@ -212,9 +213,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       /// 테마 모드 (라이트/다크/시스템)
       themeMode: themeMode,
 
-      /// 라이트/다크 ThemeData (context.palette 동작에 필요)
+      /// 라이트/다크 ThemeData (context.appTheme 동작에 필요)
       theme: ThemeData(
         brightness: Brightness.light,
+        scaffoldBackgroundColor: AppThemeColors.lightBackground,
         colorScheme: ColorScheme.light(
           primary: const Color(0xFF1976D2),
           onPrimary: Colors.white,
@@ -224,6 +226,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
+        scaffoldBackgroundColor: AppThemeColors.darkBackground,
         colorScheme: ColorScheme.dark(
           primary: Colors.white,
           onPrimary: const Color.fromRGBO(26, 26, 26, 1),

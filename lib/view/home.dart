@@ -9,8 +9,8 @@ import 'package:flutter/services.dart'; // HapticFeedback 사용을 위해 추�
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:tagdo/model/todo.dart'; // Todo 데이터 모델
-import 'package:tagdo/theme/app_colors.dart';
-import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/theme/app_theme_colors.dart';
+import 'package:tagdo/util/config_ui.dart';
 import 'package:tagdo/util/app_storage.dart';
 import 'package:tagdo/util/common_util.dart';
 import 'package:tagdo/view/todo_item.dart';
@@ -74,7 +74,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
   /// 1. ShowcaseView 등록 (건너뛰기/다음 버튼, 완료 시 플래그 저장)
   /// 2. postFrameCallback: 튜토리얼용 할 일 생성 → Drawer 열기 → 스포트라이트 시작
   void _initTutorial(BuildContext context) {
-    final p = context.palette;
+    final p = context.appTheme;
     final scaffoldKey = _scaffoldKey;
     ShowcaseView.register(
       enableShowcase: !AppStorage.getTutorialCompleted(),
@@ -141,7 +141,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
+    final p = context.appTheme;
 
     /// ─────────────────────────────────────────────────
     /// [ref.watch] - todoListProvider를 구독합니다.
@@ -375,7 +375,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
   /// [_showEditSheet] - Todo 생성/수정 BottomSheet
   /// ─────────────────────────────────────────────────
   Future<void> _showEditSheet({Todo? todo}) async {
-    final p = context.palette;
+    final p = context.appTheme;
     final result = await showModalBottomSheet<Todo>(
       context: context,
       backgroundColor: p.sheetBackground,
@@ -410,7 +410,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
     Todo todo,
     TodoListNotifier todoNotifier,
   ) {
-    final p = context.palette;
+    final p = context.appTheme;
 
     /// 하이라이트 ON
     ref.read(highlightedTodoProvider.notifier).highlight(todo.no);

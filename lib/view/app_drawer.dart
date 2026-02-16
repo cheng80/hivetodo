@@ -9,10 +9,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:tagdo/model/todo.dart';
 import 'package:tagdo/service/in_app_review_service.dart';
 import 'package:tagdo/service/notification_service.dart';
-import 'package:tagdo/theme/app_colors.dart';
+import 'package:tagdo/theme/app_theme_colors.dart';
 import 'package:tagdo/util/app_storage.dart';
 import 'package:tagdo/util/common_util.dart';
-import 'package:tagdo/theme/config_ui.dart';
+import 'package:tagdo/util/config_ui.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:tagdo/view/sheets/todo_edit_sheet.dart';
 import 'package:tagdo/view/tag_settings.dart';
@@ -39,7 +39,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
   bool _showDevButtons = false;
 
   /// 태그 관리 ListTile - tagManageShowcaseKey 있으면 Showcase로 감싸서 튜토리얼 1단계 대상
-  Widget _wrapTagManageTile(BuildContext context, AppColorScheme p) {
+  Widget _wrapTagManageTile(BuildContext context, AppThemeColorsHelper p) {
     final tile = ListTile(
       leading: Icon(Icons.label_outline, color: p.icon),
       title: Text(
@@ -71,7 +71,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
+    final p = context.appTheme;
     final themeMode = ref.watch(themeNotifierProvider);
     final isDark =
         themeMode == ThemeMode.dark ||
@@ -345,7 +345,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
 
   /// 개발용: Todo 추가 시트 표시
   Future<void> _showAddSheet(BuildContext context, WidgetRef ref) async {
-    final p = context.palette;
+    final p = context.appTheme;
     final result = await showModalBottomSheet<Todo>(
       context: context,
       backgroundColor: p.sheetBackground,
@@ -364,7 +364,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
 }
 
 void _showLanguagePicker(BuildContext context) {
-  final p = context.palette;
+  final p = context.appTheme;
   showModalBottomSheet(
       context: context,
       backgroundColor: p.sheetBackground,
@@ -389,7 +389,7 @@ void _showLanguagePicker(BuildContext context) {
 }
 
 Widget _langTile(BuildContext context, Locale locale, String label) {
-    final p = context.palette;
+    final p = context.appTheme;
     final isSelected = context.locale == locale;
     return ListTile(
       leading: Icon(

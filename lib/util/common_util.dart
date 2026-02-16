@@ -1,5 +1,37 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:tagdo/theme/app_colors.dart';
+import 'package:tagdo/theme/app_theme_colors.dart';
+
+// ─── API Base URL ────────────────────────────────────────────────────────────
+
+/// FastAPI 서버 기본 URL (커스텀 오버라이드)
+/// Windows + Android 에뮬레이터 사용자는 자신의 호스트 IP를 설정하세요
+/// 예: 'http://192.168.1.50:8000'
+/// null이면 플랫폼에 따라 자동 선택 (Android: 10.0.2.2, iOS: 127.0.0.1)
+const String? customApiBaseUrl = null;
+// 윈도우 사용자는 윗줄 주석 처리 하고 아래 줄 주석 해제하여 자신의 호스트 IP를 설정하세요.
+// const String? customApiBaseUrl = 'http://192.168.90.7:8000';
+
+/// 플랫폼별 기본 API Base URL 반환
+/// - Android 에뮬레이터: 10.0.2.2 (호스트 머신 루프백)
+/// - iOS 시뮬레이터 / 기타: 127.0.0.1
+String _getApiBaseUrlSync() {
+  if (Platform.isAndroid) {
+    return 'http://10.0.2.2:8000';
+  }
+  return 'http://127.0.0.1:8000';
+}
+
+/// FastAPI 서버 기본 URL
+///
+/// customApiBaseUrl이 설정되어 있으면 사용하고, 없으면 플랫폼에 따라 기본값 반환
+String getApiBaseUrl() {
+  if (customApiBaseUrl != null && customApiBaseUrl!.isNotEmpty) {
+    return customApiBaseUrl!;
+  }
+  return _getApiBaseUrlSync();
+}
 
 /// 최상위 ScaffoldMessenger에 접근하기 위한 글로벌 키.
 /// MaterialApp의 messengerKey에 연결하면, 여러 컨텍스트에서 스낵바를
@@ -173,7 +205,7 @@ Future<bool> showConfirmDialog(
   Color confirmColor = Colors.red,
   bool useRootNavigator = true,
 }) async {
-  final p = context.palette;
+  final p = context.appTheme;
   final result = await showDialog<bool>(
     context: context,
     useRootNavigator: useRootNavigator,
