@@ -37,6 +37,14 @@
   - 내부 테스트 → 외부 테스트
   - TestFlight 빌드 제출
 
+- [ ] **업로드 직전 버전/빌드 번호 올리기 (필수)**
+  - 같은 버전 재업로드 시에도 `build number`는 반드시 증가
+  - 권장: `pubspec.yaml`의 `version: x.y.z+n` 먼저 갱신
+    - 예: `version: 1.0.0+1` → `version: 1.0.1+2`
+  - 릴리즈 빌드 명령어(명시):
+    - `flutter build ios --release --build-name 1.0.1 --build-number 2`
+  - 참고: iOS에서 `build-name` = `CFBundleShortVersionString`, `build-number` = `CFBundleVersion`
+
 - [ ] **App Store 제출**
   - 가격 책정 (무료/유료)
   - 심사 제출
@@ -69,6 +77,14 @@
   - Internal testing track 등록
   - `requestReview()` 테스트 시 Internal app sharing 또는 Internal test track 사용
 
+- [ ] **업로드 직전 버전/빌드 번호 올리기 (필수)**
+  - 플레이스토어 업로드마다 버전코드(= `build number`)는 반드시 증가
+  - 권장: `pubspec.yaml`의 `version: x.y.z+n` 먼저 갱신
+    - 예: `version: 1.0.0+1` → `version: 1.0.1+2`
+  - 릴리즈 빌드 명령어(명시):
+    - `flutter build appbundle --release --build-name 1.0.1 --build-number 2`
+  - 참고: Android에서 `build-name` = `versionName`, `build-number` = `versionCode`
+
 - [ ] **프로덕션 출시**
   - 국가·가격 설정
   - 심사 제출
@@ -89,7 +105,9 @@
   - `docs/erd/`, `docs/system/` 다이어그램
 
 - [ ] **릴리즈 빌드 점검**
-  - `flutter build ios --release` / `flutter build appbundle --release`
+  - 업로드 전에 버전 증가했는지 확인 (`version: x.y.z+n` 또는 `--build-name/--build-number`)
+  - `flutter build ios --release --build-name <버전> --build-number <빌드번호>`
+  - `flutter build appbundle --release --build-name <버전> --build-number <빌드번호>`
   - 프로덕션 설정 확인 (API 키, 디버그 로그 제거 등)
 
 ---

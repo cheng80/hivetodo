@@ -234,11 +234,8 @@ class NotificationService {
     final notificationId = _toNotificationId(todo.no);
 
     try {
-      await cancelNotification(todo.no); // 기존 알람 있으면 먼저 취소
-
-      // 배지 숫자 = 현재 예약 개수 + 이번에 추가하는 1개
-      final pending = await _notifications.pendingNotificationRequests();
-      final badgeNumber = pending.length + 1;
+      // 기존 알람 있으면 먼저 취소 (resync 없이 단건 취소)
+      await _notifications.cancel(id: notificationId);
 
       final scheduledDate = tz.TZDateTime(
         tz.local,
@@ -261,13 +258,15 @@ class NotificationService {
       );
 
       // iOS: 알림 도착 시 앱 아이콘에 badgeNumber 표시
-      final DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
         presentBanner: true,
         presentList: true,
-        badgeNumber: badgeNumber,
+        // 실제 배지 번호는 _resyncPendingNotificationBadges()에서
+        // 예약 전체를 마감 시간 순으로 재계산해 반영합니다.
+        badgeNumber: 1,
       );
 
       final NotificationDetails details = NotificationDetails(
@@ -286,6 +285,9 @@ class NotificationService {
         payload: dueDate.toIso8601String(),
       );
 
+      // 신규/수정 예약 후 전체 배지 번호 재정렬
+      await _resyncPendingNotificationBadges();
+
       return todo.no;
     } catch (e) {
       debugPrint('[Notification] 알람 등록 오류: $e');
@@ -294,12 +296,11 @@ class NotificationService {
   }
 
   /// 알람 취소 (todoNo 전달 시 내부에서 32비트 ID로 변환)
-  /// 취소 후 남은 예약 개수로 배지 업데이트
+  /// 취소 후 남은 예약들의 배지 번호를 재정렬
   Future<void> cancelNotification(int todoNo) async {
     try {
       await _notifications.cancel(id: _toNotificationId(todoNo));
-      final pending = await _notifications.pendingNotificationRequests();
-      await _updateBadgeCount(pending.length); // 배지 숫자 갱신
+      await _resyncPendingNotificationBadges();
     } catch (e) {
       debugPrint('[Notification] 알람 취소 오류: $e');
     }
@@ -358,11 +359,101 @@ class NotificationService {
     required Future<void> Function(Todo) updateTodo,
   }) async {
     final now = DateTime.now();
+    bool removedAny = false;
     for (final todo in todos) {
       if (todo.dueDate == null) continue;
       if (todo.dueDate!.isBefore(now)) {
-        await cancelNotification(todo.no);
+        await _notifications.cancel(id: _toNotificationId(todo.no));
+        removedAny = true;
       }
+    }
+    if (removedAny) {
+      await _resyncPendingNotificationBadges();
+    }
+  }
+
+  /// iOS 배지를 "예약 순서"가 아닌 "마감 시각 순서"로 정렬하기 위해
+  /// pending 알림 전체를 동일 ID로 다시 예약하며 badgeNumber를 1..N으로 재부여.
+  ///
+  /// 주의: 이 값은 "예정된 마감 도착 순서" 기준이며, 앱 실행 중에는 clearBadge()로 0 처리됩니다.
+  Future<void> _resyncPendingNotificationBadges() async {
+    try {
+      final pending = await _notifications.pendingNotificationRequests();
+      if (pending.isEmpty) return;
+
+      final now = DateTime.now();
+      final normalized = <({int id, String title, String body, DateTime due, String? payload})>[];
+
+      for (final p in pending) {
+        final due = _tryParseDueDate(p.payload);
+        if (due == null) continue;
+        if (due.isBefore(now)) continue;
+        normalized.add((
+          id: p.id,
+          title: p.title ?? 'todoDefaultTitle'.tr(),
+          body: p.body ?? 'dueTimeBody'.tr(),
+          due: due,
+          payload: p.payload,
+        ));
+      }
+
+      if (normalized.isEmpty) return;
+      normalized.sort((a, b) => a.due.compareTo(b.due));
+
+      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+        _channelId,
+        _channelName,
+        channelDescription: _channelDescription,
+        importance: Importance.high,
+        priority: Priority.high,
+        playSound: true,
+        enableVibration: true,
+      );
+
+      for (var i = 0; i < normalized.length; i++) {
+        final item = normalized[i];
+        final scheduledDate = tz.TZDateTime(
+          tz.local,
+          item.due.year,
+          item.due.month,
+          item.due.day,
+          item.due.hour,
+          item.due.minute,
+        );
+
+        final iosDetails = DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+          presentBanner: true,
+          presentList: true,
+          badgeNumber: i + 1,
+        );
+
+        final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+        await _notifications.zonedSchedule(
+          id: item.id,
+          title: item.title,
+          body: item.body,
+          scheduledDate: scheduledDate,
+          notificationDetails: details,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          matchDateTimeComponents: null,
+          payload: item.payload,
+        );
+      }
+    } catch (e) {
+      debugPrint('[Notification] 배지 재정렬 오류: $e');
+    }
+  }
+
+  static DateTime? _tryParseDueDate(String? payload) {
+    if (payload == null || payload.isEmpty) return null;
+    try {
+      return DateTime.parse(payload);
+    } catch (_) {
+      return null;
     }
   }
 }

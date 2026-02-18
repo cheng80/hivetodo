@@ -376,8 +376,10 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
   /// ─────────────────────────────────────────────────
   Future<void> _showEditSheet({Todo? todo}) async {
     final p = context.appTheme;
+    final rootContext = Navigator.of(context, rootNavigator: true).context;
     final result = await showModalBottomSheet<Todo>(
-      context: context,
+      context: rootContext,
+      useRootNavigator: true,
       backgroundColor: p.sheetBackground,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(

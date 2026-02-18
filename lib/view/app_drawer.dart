@@ -2,6 +2,7 @@
 // 앱 사이드 메뉴 (Drawer)
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,6 +38,7 @@ class AppDrawer extends ConsumerStatefulWidget {
 
 class _AppDrawerState extends ConsumerState<AppDrawer> {
   bool _showDevButtons = false;
+  static const bool _devToolsEnabled = !kReleaseMode;
 
   /// 태그 관리 ListTile - tagManageShowcaseKey 있으면 Showcase로 감싸서 튜토리얼 1단계 대상
   Widget _wrapTagManageTile(BuildContext context, AppThemeColorsHelper p) {
@@ -86,10 +88,12 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
           children: [
             // ─── 헤더 (고정) ─────────────────
             GestureDetector(
-              onLongPress: () {
-                HapticFeedback.mediumImpact();
-                setState(() => _showDevButtons = !_showDevButtons);
-              },
+              onLongPress: _devToolsEnabled
+                  ? () {
+                      HapticFeedback.mediumImpact();
+                      setState(() => _showDevButtons = !_showDevButtons);
+                    }
+                  : null,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
                   ConfigUI.screenPaddingH, 24, ConfigUI.screenPaddingH, 16,
@@ -117,7 +121,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  if (_showDevButtons) ...[
+                  if (_devToolsEnabled && _showDevButtons) ...[
                     ListTile(
                       leading: Icon(Icons.data_object, color: p.icon),
                       title: Text(
@@ -137,7 +141,9 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                       ),
                       onTap: () async {
                         Navigator.pop(context);
-                        await _showAddSheet(context, ref);
+                        await Future.delayed(const Duration(milliseconds: 220));
+                        if (!mounted) return;
+                        await _showAddSheet(ref);
                       },
                     ),
                     Divider(color: p.divider, height: 1),
@@ -251,35 +257,36 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                     },
                   ),
 
-                  /// 알람 상태 확인 (디버깅)
-                  ListTile(
-                    leading: Icon(Icons.access_alarm, color: p.icon),
-                    title: Text(
-                      'alarmStatusCheck'.tr(),
-                      style: TextStyle(color: p.textPrimary, fontSize: 16),
-                    ),
-                    trailing: Icon(Icons.info_outline, color: p.textSecondary),
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final todos = await ref.read(todoListProvider.future);
-                      final withDueDate =
-                          todos.where((t) => t.dueDate != null).toList();
-                      final pending =
-                          await NotificationService().checkPendingNotifications();
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'alarmStatusSummary'.tr(namedArgs: {
-                                'count': '${withDueDate.length}',
-                                'alarmCount': '${pending.length}',
-                              }),
+                  if (_devToolsEnabled)
+                    /// 알람 상태 확인 (디버깅)
+                    ListTile(
+                      leading: Icon(Icons.access_alarm, color: p.icon),
+                      title: Text(
+                        'alarmStatusCheck'.tr(),
+                        style: TextStyle(color: p.textPrimary, fontSize: 16),
+                      ),
+                      trailing: Icon(Icons.info_outline, color: p.textSecondary),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        final todos = await ref.read(todoListProvider.future);
+                        final withDueDate =
+                            todos.where((t) => t.dueDate != null).toList();
+                        final pending =
+                            await NotificationService().checkPendingNotifications();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'alarmStatusSummary'.tr(namedArgs: {
+                                  'count': '${withDueDate.length}',
+                                  'alarmCount': '${pending.length}',
+                                }),
+                              ),
                             ),
-                          ),
-                        );
-                      }
-                    },
-                  ),
+                          );
+                        }
+                      },
+                    ),
                 ],
               ),
             ),
@@ -344,10 +351,12 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
   }
 
   /// 개발용: Todo 추가 시트 표시
-  Future<void> _showAddSheet(BuildContext context, WidgetRef ref) async {
+  Future<void> _showAddSheet(WidgetRef ref) async {
     final p = context.appTheme;
+    final rootContext = Navigator.of(context, rootNavigator: true).context;
     final result = await showModalBottomSheet<Todo>(
-      context: context,
+      context: rootContext,
+      useRootNavigator: true,
       backgroundColor: p.sheetBackground,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
