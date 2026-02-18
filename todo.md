@@ -148,6 +148,9 @@
 → **[docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md)** 참고 (다른 앱에서도 재사용 가능)
 
 - TagDo 전용: Bundle ID `com.cheng80.tagdo`, applicationId `com.cheng80.tagdo`, 카테고리 생산성
+- [x] iOS `1.0.0 (1)` 빌드 업로드 및 TestFlight 테스트 완료
+- [x] App Store 스크린샷/메타데이터 입력 완료
+- [ ] App Store 심사 결과 확인 후 대응 (리젝 시 수정 → 빌드번호 증가 후 재제출)
 
 ## 버그 수정 / 개선
 

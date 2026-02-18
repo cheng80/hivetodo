@@ -11,33 +11,34 @@
 | Bundle ID (iOS) | `com.cheng80.tagdo` |
 | applicationId (Android) | `com.cheng80.tagdo` |
 | 카테고리 | 생산성 (Productivity) |
+| 현재 iOS 상태 | `1.0.0 (1)` App Store 심사중 |
 
 ---
 
 ## 앱 스토어 (iOS)
 
-- [ ] **Apple Developer Program 가입**
+- [x] **Apple Developer Program 가입**
   - [developer.apple.com](https://developer.apple.com) 연간 $99
 
-- [ ] **App Store Connect 앱 등록**
+- [x] **App Store Connect 앱 등록**
   - Bundle ID 설정
   - 앱 이름, 부제목, 설명 작성
   - 카테고리 선택
 
-- [ ] **스크린샷 준비**
+- [x] **스크린샷 준비**
   - iPhone 6.7", 6.5", 5.5" (필수)
   - iPad (선택)
 
-- [ ]  dl a
+- [x] **앱 정책·메타데이터**
   - 개인정보 처리방침 URL (데이터 수집 시)
   - 권한 사용 설명 (Info.plist - 알림 등)
   - 나이 등급, 연락처
 
-- [ ] **TestFlight 배포**
+- [x] **TestFlight 배포**
   - 내부 테스트 → 외부 테스트
   - TestFlight 빌드 제출
 
-- [ ] **업로드 직전 버전/빌드 번호 올리기 (필수)**
+- [x] **업로드 직전 버전/빌드 번호 올리기 (필수)**
   - 같은 버전 재업로드 시에도 `build number`는 반드시 증가
   - 권장: `pubspec.yaml`의 `version: x.y.z+n` 먼저 갱신
     - 예: `version: 1.0.0+1` → `version: 1.0.1+2`
@@ -45,9 +46,10 @@
     - `flutter build ios --release --build-name 1.0.1 --build-number 2`
   - 참고: iOS에서 `build-name` = `CFBundleShortVersionString`, `build-number` = `CFBundleVersion`
 
-- [ ] **App Store 제출**
+- [x] **App Store 제출**
   - 가격 책정 (무료/유료)
   - 심사 제출
+  - 현재 상태: `1.0.0 (1)` 심사 진행 중
 
 ---
 
