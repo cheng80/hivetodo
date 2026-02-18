@@ -6,7 +6,7 @@
 
 | 메인 화면 | 태그 관리 | 새 할 일 |
 |:---------:|:---------:|:---------:|
-| ![메인](docs/screensshots/TagDo_ScreenShot_01.png) | ![태그 관리](docs/screensshots/TagDo_ScreenShot_08.png) | ![새 할 일](docs/screensshots/TagDo_ScreenShot_12.png) |
+| ![메인](docs/screensshots/iPhone/ko/iphone_01.png) | ![태그 관리](docs/screensshots/iPhone/ko/iphone_02.png) | ![새 할 일](docs/screensshots/iPhone/ko/iphone_03.png) |
 
 ---
 

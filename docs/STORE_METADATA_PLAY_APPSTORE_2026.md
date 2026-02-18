@@ -65,9 +65,9 @@
 - 앱 이름: `TagDo`
 - 카테고리: `Productivity`
 - 지원 이메일: `cheng80@gmail.com`
-- 개인정보처리방침 URL: `https://cheng80.myqnapcloud.com/web/tagdo/privacy.html`
-- 이용약관 URL: `https://cheng80.myqnapcloud.com/web/tagdo/terms.html`
-- 지원 URL(Apple): `https://cheng80.myqnapcloud.com/web/tagdo/index.html`  
+- 개인정보처리방침 URL: `https://cheng80.myqnapcloud.com/tagdo/privacy.html`
+- 이용약관 URL: `https://cheng80.myqnapcloud.com/tagdo/terms.html`
+- 지원 URL(Apple): `https://cheng80.myqnapcloud.com/tagdo/index.html`  
   (권장: support 전용 페이지를 만들어 이메일/문의 방법을 명시)
 
 ---
@@ -176,7 +176,7 @@ Play는 폭넓은 범위를 허용하므로, 아래 2종만 준비해도 안정�
 - Subtitle (en): `Tag-based Todo Planner` (<=30)
 - Primary Category: `Productivity`
 - Age Rating: 일반 생산성 앱 기준 설문 응답
-- Privacy Policy URL: `https://cheng80.myqnapcloud.com/web/tagdo/privacy.html`
+- Privacy Policy URL: `https://cheng80.myqnapcloud.com/tagdo/privacy.html`
 
 ---
 
@@ -236,13 +236,13 @@ Permission
   `todo,task,reminder,planner,productivity,tag,checklist,offline`
 
 #### Support URL (필수)
-- `https://cheng80.myqnapcloud.com/web/tagdo/index.html`
+- `https://cheng80.myqnapcloud.com/tagdo/index.html`
 
 #### Marketing URL (선택)
-- `https://cheng80.myqnapcloud.com/web/tagdo/index.html`
+- `https://cheng80.myqnapcloud.com/tagdo/index.html`
 
 #### Copyright (필수)
-- `2026 cheng80` (권리자명 기준 권장)
+- `2026 KIM TAEK KWON` (권리자명 기준 권장)
 - 참고: App Store의 Copyright는 **도메인명보다 권리자(개인/법인) 명칭**이 안전합니다.
 - 웹페이지 푸터 표기는 도메인 기준(`© 2026 cheng80.myqnapcloud.com`)으로 운영해도 무방합니다.
 
@@ -281,7 +281,7 @@ TagDo 권장 최소 세트(실무):
 ## 5) 제출 전 최종 체크
 
 - [x] NAS 도메인 HTTPS URL 확정 (`cheng80.myqnapcloud.com`)
-- [x] 최종 배포 경로 확인 (`/web/` 하위 서비스)
+- [x] 최종 배포 경로 확인 (`docs/web`가 웹 루트이므로 URL은 `/tagdo/...` 형태 사용)
 - [ ] Play/App Store 각각 locale 별 텍스트 입력
 - [ ] 스크린샷 최신 UI 기준으로 교체
 - [ ] Play Data safety 실제 SDK 동작 재검증
