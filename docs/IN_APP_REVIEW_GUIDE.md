@@ -32,7 +32,7 @@ if (await inAppReview.isAvailable()) {
 - **Windows**: `microsoftStoreId` 필수
 
 ```dart
-inAppReview.openStoreListing(appStoreId: '앱스토어ID');
+inAppReview.openStoreListing(appStoreId: '6759315965');
 ```
 
 ---
@@ -87,6 +87,7 @@ inAppReview.openStoreListing(appStoreId: '앱스토어ID');
 
 - `requestReview()`: GetStorage에 완료 횟수·접속일 저장 후, 조건 만족 시 자동 호출
 - `openStoreListing()`: Drawer에 ListTile 추가, 탭 시 호출
+- **TagDo 현재 Apple ID**: `6759315965` (`lib/service/in_app_review_service.dart` 반영 완료)
 
 ---
 
