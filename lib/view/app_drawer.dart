@@ -357,6 +357,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
     final result = await showModalBottomSheet<Todo>(
       context: rootContext,
       useRootNavigator: true,
+      isDismissible: false,
       backgroundColor: p.sheetBackground,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(

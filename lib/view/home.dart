@@ -380,6 +380,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
     final result = await showModalBottomSheet<Todo>(
       context: rootContext,
       useRootNavigator: true,
+      isDismissible: false,
       backgroundColor: p.sheetBackground,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
