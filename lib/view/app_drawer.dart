@@ -30,7 +30,11 @@ class AppDrawer extends ConsumerStatefulWidget {
   final VoidCallback? onTutorialReplay;
   final GlobalKey? tagManageShowcaseKey;
 
-  const AppDrawer({super.key, this.onTutorialReplay, this.tagManageShowcaseKey});
+  const AppDrawer({
+    super.key,
+    this.onTutorialReplay,
+    this.tagManageShowcaseKey,
+  });
 
   @override
   ConsumerState<AppDrawer> createState() => _AppDrawerState();
@@ -96,7 +100,10 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                   : null,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
-                  ConfigUI.screenPaddingH, 24, ConfigUI.screenPaddingH, 16,
+                  ConfigUI.screenPaddingH,
+                  24,
+                  ConfigUI.screenPaddingH,
+                  16,
                 ),
                 child: Row(
                   spacing: 12,
@@ -169,7 +176,9 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                           inactiveThumbColor: p.textMeta,
                           inactiveTrackColor: p.chipUnselectedBg,
                           onChanged: (_) {
-                            ref.read(themeNotifierProvider.notifier).toggleTheme();
+                            ref
+                                .read(themeNotifierProvider.notifier)
+                                .toggleTheme();
                           },
                         ),
                       ],
@@ -196,7 +205,9 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                           inactiveThumbColor: p.textMeta,
                           inactiveTrackColor: p.chipUnselectedBg,
                           onChanged: (_) {
-                            ref.read(wakelockNotifierProvider.notifier).toggle();
+                            ref
+                                .read(wakelockNotifierProvider.notifier)
+                                .toggle();
                           },
                         ),
                       ],
@@ -226,7 +237,11 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                       'rateApp'.tr(),
                       style: TextStyle(color: p.textPrimary, fontSize: 16),
                     ),
-                    trailing: Icon(Icons.open_in_new, color: p.textSecondary, size: 20),
+                    trailing: Icon(
+                      Icons.open_in_new,
+                      color: p.textSecondary,
+                      size: 20,
+                    ),
                     onTap: () async {
                       Navigator.pop(context);
                       final ok = await InAppReviewService().openStoreListing();
@@ -265,22 +280,28 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                         'alarmStatusCheck'.tr(),
                         style: TextStyle(color: p.textPrimary, fontSize: 16),
                       ),
-                      trailing: Icon(Icons.info_outline, color: p.textSecondary),
+                      trailing: Icon(
+                        Icons.info_outline,
+                        color: p.textSecondary,
+                      ),
                       onTap: () async {
                         Navigator.pop(context);
                         final todos = await ref.read(todoListProvider.future);
-                        final withDueDate =
-                            todos.where((t) => t.dueDate != null).toList();
-                        final pending =
-                            await NotificationService().checkPendingNotifications();
+                        final withDueDate = todos
+                            .where((t) => t.dueDate != null)
+                            .toList();
+                        final pending = await NotificationService()
+                            .checkPendingNotifications();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                'alarmStatusSummary'.tr(namedArgs: {
-                                  'count': '${withDueDate.length}',
-                                  'alarmCount': '${pending.length}',
-                                }),
+                                'alarmStatusSummary'.tr(
+                                  namedArgs: {
+                                    'count': '${withDueDate.length}',
+                                    'alarmCount': '${pending.length}',
+                                  },
+                                ),
                               ),
                             ),
                           );
@@ -294,7 +315,10 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
             // ─── 푸터 (고정) - 앱 버전 ─────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                ConfigUI.screenPaddingH, 12, ConfigUI.screenPaddingH, 16,
+                ConfigUI.screenPaddingH,
+                12,
+                ConfigUI.screenPaddingH,
+                16,
               ),
               child: FutureBuilder<PackageInfo>(
                 future: PackageInfo.fromPlatform(),
@@ -335,8 +359,11 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
     final dummyTodos = <Todo>[];
     for (var i = 0; i < items.length; i++) {
       final (content, tag, dueDate) = items[i];
-      final todo = Todo.create(content, tag, dueDate: dueDate)
-          .copyWith(no: baseNo + i);
+      final todo = Todo.create(
+        content,
+        tag,
+        dueDate: dueDate,
+      ).copyWith(no: baseNo + i);
       dummyTodos.add(todo);
     }
     dummyTodos.add(
@@ -344,9 +371,9 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
     );
     await ref.read(todoListProvider.notifier).insertDummyTodos(dummyTodos);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${dummyTodos.length}개 추가됨')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('${dummyTodos.length}개 추가됨')));
     }
   }
 
@@ -376,38 +403,38 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
 void _showLanguagePicker(BuildContext context) {
   final p = context.appTheme;
   showModalBottomSheet(
-      context: context,
-      backgroundColor: p.sheetBackground,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(ConfigUI.radiusSheet),
-        ),
+    context: context,
+    backgroundColor: p.sheetBackground,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(ConfigUI.radiusSheet),
       ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _langTile(ctx, const Locale('ko'), 'langKo'.tr()),
-            _langTile(ctx, const Locale('en'), 'langEn'.tr()),
-            _langTile(ctx, const Locale('ja'), 'langJa'.tr()),
-            _langTile(ctx, const Locale('zh', 'CN'), 'langZhCN'.tr()),
-            _langTile(ctx, const Locale('zh', 'TW'), 'langZhTW'.tr()),
-          ],
-        ),
+    ),
+    builder: (ctx) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _langTile(ctx, const Locale('ko'), 'langKo'.tr()),
+          _langTile(ctx, const Locale('en'), 'langEn'.tr()),
+          _langTile(ctx, const Locale('ja'), 'langJa'.tr()),
+          _langTile(ctx, const Locale('zh', 'CN'), 'langZhCN'.tr()),
+          _langTile(ctx, const Locale('zh', 'TW'), 'langZhTW'.tr()),
+        ],
       ),
-    );
+    ),
+  );
 }
 
 Widget _langTile(BuildContext context, Locale locale, String label) {
-    final p = context.appTheme;
-    final isSelected = context.locale == locale;
-    return ListTile(
-      leading: Icon(
-        isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
-        color: isSelected ? p.accent : p.icon,
-      ),
-      title: Text(label, style: TextStyle(color: p.textOnSheet)),
-      onTap: () {
+  final p = context.appTheme;
+  final isSelected = context.locale == locale;
+  return ListTile(
+    leading: Icon(
+      isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+      color: isSelected ? p.accent : p.icon,
+    ),
+    title: Text(label, style: TextStyle(color: p.textOnSheet)),
+    onTap: () {
       context.setLocale(locale);
       Navigator.pop(context);
     },

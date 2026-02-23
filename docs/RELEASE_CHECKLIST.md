@@ -11,7 +11,7 @@
 | Bundle ID (iOS) | `com.cheng80.tagdo` |
 | applicationId (Android) | `com.cheng80.tagdo` |
 | 카테고리 | 생산성 (Productivity) |
-| 현재 iOS 상태 | `1.0.0 (1)` App Store 심사중 |
+| 현재 iOS 상태 | `1.0.0 (1)` App Store 출시 완료 |
 
 ---
 
@@ -49,7 +49,7 @@
 - [x] **App Store 제출**
   - 가격 책정 (무료/유료)
   - 심사 제출
-  - 현재 상태: `1.0.0 (1)` 심사 진행 중
+  - 현재 상태: `1.0.0 (1)` 출시 완료
 
 ---
 
