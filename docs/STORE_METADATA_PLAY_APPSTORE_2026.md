@@ -126,6 +126,22 @@ TagDo is a simple and focused todo app that helps you organize tasks with tags.
 - If denied, reminder notifications are unavailable, but core todo features still work.
 ```
 
+### A-1. Store tags (Play Console, 최대 5개)
+
+Google Play `스토어 설정 > 태그 관리`에서 앱 특성을 설명하는 태그를 최대 5개 선택할 수 있습니다.
+
+TagDo 권장(우선순위):
+- `할 일 목록` 또는 `To-do list`
+- `작업 관리` 또는 `Task management`
+- `생산성` 또는 `Productivity`
+- `알림` 또는 `Reminder`
+- `체크리스트` 또는 `Checklist`
+
+선택 기준:
+- 앱의 핵심 사용 시나리오(할 일/체크/알림)에 직접 연관된 태그 우선
+- 게임/엔터테인먼트/금융 등 비관련 태그는 제외
+- 콘솔에 노출되는 실제 태그 명칭은 계정/언어/카테고리에 따라 일부 다를 수 있으므로, 의미가 가장 가까운 항목으로 선택
+
 ---
 
 ### B. Graphics checklist (Play)

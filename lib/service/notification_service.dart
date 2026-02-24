@@ -280,7 +280,7 @@ class NotificationService {
         body: 'dueTimeBody'.tr(),
         scheduledDate: scheduledDate,
         notificationDetails: details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         matchDateTimeComponents: null,
         payload: dueDate.toIso8601String(),
       );
@@ -438,7 +438,7 @@ class NotificationService {
           body: item.body,
           scheduledDate: scheduledDate,
           notificationDetails: details,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           matchDateTimeComponents: null,
           payload: item.payload,
         );
