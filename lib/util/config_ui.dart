@@ -71,6 +71,18 @@ class ConfigUI {
   static const double inputPaddingH = 12.0;
   static const double inputPaddingV = 8.0;
 
+  // ─── 태블릿 대응 (Bottom Sheet) ─────────────────────────────────────
+  /// 바텀시트 최대 폭 (태블릿에서 화면 전체로 퍼지지 않도록)
+  static const double maxSheetWidth = 640.0;
+
+  /// 바텀시트 최대 폭 제한용 BoxConstraints
+  static BoxConstraints sheetConstraints(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    return BoxConstraints(
+      maxWidth: screenWidth > maxSheetWidth ? maxSheetWidth : screenWidth,
+    );
+  }
+
   // ─── 타이포 (선택 사용) ───────────────────────────────────────────────
   static const double fontSizeTitle = 24.0;
   static const double fontSizeAppBar = 20.0;

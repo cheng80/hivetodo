@@ -71,7 +71,6 @@ class _TodoEditSheetState extends ConsumerState<TodoEditSheet> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: SizedBox(
         height: sheetHeight,
-        width: MediaQuery.of(context).size.width,
         child: Column(
           children: [
             EditSheetHeader(isUpdate: widget.update != null, onSave: _onSave),

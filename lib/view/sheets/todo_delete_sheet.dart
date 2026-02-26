@@ -24,10 +24,9 @@ class TodoDeleteSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.appTheme;
 
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: 178 + MediaQuery.of(context).padding.bottom,
+    return SafeArea(
       child: Column(
+      mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// [이 항목 삭제] - 해당 Todo만 삭제
@@ -75,6 +74,7 @@ class TodoDeleteSheet extends StatelessWidget {
               onDeleteAll();
             },
           ),
+          const SizedBox(height: 12),
         ],
       ),
     );

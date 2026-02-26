@@ -87,6 +87,7 @@ class TagSettings extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: p.sheetBackground,
+      constraints: ConfigUI.sheetConstraints(context),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(ConfigUI.radiusSheet),
@@ -221,14 +222,16 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
   Widget build(BuildContext context) {
     final p = context.appTheme;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: ConfigUI.sheetPaddingH,
-        right: ConfigUI.sheetPaddingH,
-        top: 24,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      child: Column(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: ConfigUI.sheetPaddingH,
+          right: ConfigUI.sheetPaddingH,
+          top: 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -348,7 +351,8 @@ class _TagEditorSheetState extends ConsumerState<_TagEditorSheet> {
               ),
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

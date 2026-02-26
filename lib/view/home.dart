@@ -382,6 +382,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
       useRootNavigator: true,
       isDismissible: false,
       backgroundColor: p.sheetBackground,
+      constraints: ConfigUI.sheetConstraints(context),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(ConfigUI.radiusSheet),
@@ -421,6 +422,7 @@ class _TodoHomeState extends ConsumerState<TodoHome> {
     showModalBottomSheet(
       context: context,
       backgroundColor: p.sheetBackground,
+      constraints: ConfigUI.sheetConstraints(context),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(ConfigUI.radiusSheet),
