@@ -43,7 +43,7 @@
   - 권장: `pubspec.yaml`의 `version: x.y.z+n` 먼저 갱신
     - 예: `version: 1.0.0+1` → `version: 1.0.1+2`
   - 릴리즈 빌드 명령어(명시):
-    - `flutter build ios --release --build-name 1.0.1 --build-number 2`
+    - `flutter build ipa --release --build-name 1.0.1 --build-number 2`
   - 참고: iOS에서 `build-name` = `CFBundleShortVersionString`, `build-number` = `CFBundleVersion`
 
 - [x] **App Store 제출**
@@ -108,7 +108,7 @@
 
 - [ ] **릴리즈 빌드 점검**
   - 업로드 전에 버전 증가했는지 확인 (`version: x.y.z+n` 또는 `--build-name/--build-number`)
-  - `flutter build ios --release --build-name <버전> --build-number <빌드번호>`
+  - `flutter build ipa --release --build-name <버전> --build-number <빌드번호>`
   - `flutter build appbundle --release --build-name <버전> --build-number <빌드번호>`
   - 프로덕션 설정 확인 (API 키, 디버그 로그 제거 등)
 
